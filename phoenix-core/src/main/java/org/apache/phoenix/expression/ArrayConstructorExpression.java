@@ -117,7 +117,7 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
                             offsetPos[i] = byteStream.size();
                             oStream.write(ptr.get(), ptr.getOffset(), ptr.getLength());
                             oStream.write(PArrayDataType.getSeparatorByte(rowKeyOrderOptimizable, getSortOrder()));
-                            nNulls=0;
+                            nNulls = 0;
                         }
                     } else { // No nulls for fixed length
                         oStream.write(ptr.get(), ptr.getOffset(), ptr.getLength());

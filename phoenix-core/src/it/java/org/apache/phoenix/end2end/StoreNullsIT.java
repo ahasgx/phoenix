@@ -17,6 +17,8 @@
  */
 package org.apache.phoenix.end2end;
 
+import static org.apache.phoenix.query.QueryConstants.DEFAULT_COLUMN_FAMILY_BYTES;
+import static org.apache.phoenix.query.QueryConstants.ENCODED_EMPTY_COLUMN_BYTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -32,13 +34,22 @@ import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.phoenix.expression.ArrayColumnExpression;
+import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
+import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.query.QueryConstants;
 import org.apache.phoenix.query.QueryServices;
+import org.apache.phoenix.schema.PColumn;
+import org.apache.phoenix.schema.PTableKey;
+import org.apache.phoenix.schema.tuple.ResultTuple;
+import org.apache.phoenix.schema.types.PVarchar;
+import org.apache.phoenix.util.ByteUtil;
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.phoenix.util.SchemaUtil;
 import org.apache.phoenix.util.TestUtil;
@@ -52,6 +63,8 @@ import org.junit.Test;
  * functionality allows having row-level versioning (similar to how KEEP_DELETED_CELLS works), but
  * also allows permanently deleting a row.
  */
+
+//TODO: samarth  parameterize this test once the storage scheme is optional
 public class StoreNullsIT extends ParallelStatsDisabledIT {
     private static final Log LOG = LogFactory.getLog(StoreNullsIT.class);
     
@@ -95,31 +108,37 @@ public class StoreNullsIT extends ParallelStatsDisabledIT {
     }
 
     @Test
-    public void testStoringNulls() throws SQLException, InterruptedException, IOException {
+    public void testStoringNullsForImmutableTables() throws Exception {
         stmt.executeUpdate("UPSERT INTO " + IMMUTABLE_WITH_NULLS + " VALUES (1, 'v1')");
         stmt.executeUpdate("UPSERT INTO " + IMMUTABLE_WITHOUT_NULLS + " VALUES (1, 'v1')");
         stmt.executeUpdate("UPSERT INTO " + IMMUTABLE_WITH_NULLS + " VALUES (2, null)");
         stmt.executeUpdate("UPSERT INTO " + IMMUTABLE_WITHOUT_NULLS + " VALUES (2, null)");
 
-        ensureNullsNotStored(IMMUTABLE_WITH_NULLS);
-        ensureNullsNotStored(IMMUTABLE_WITHOUT_NULLS);
+        ensureNullsStoredAsEmptyByteArrays(IMMUTABLE_WITH_NULLS);
+        ensureNullsStoredAsEmptyByteArrays(IMMUTABLE_WITHOUT_NULLS);
     }
 
-    private void ensureNullsNotStored(String tableName) throws IOException {
-        tableName = SchemaUtil.normalizeIdentifier(tableName);
+    private void ensureNullsStoredAsEmptyByteArrays(String tableName) throws Exception {
         HTable htable = new HTable(getUtility().getConfiguration(), tableName);
         Scan s = new Scan();
         s.setRaw(true);
         ResultScanner scanner = htable.getScanner(s);
         // first row has a value for name
         Result rs = scanner.next();
-        assertTrue(rs.containsColumn(QueryConstants.DEFAULT_COLUMN_FAMILY_BYTES, Bytes.toBytes("NAME")));
-        assertTrue(rs.size() == 2);
-        // 2nd row has not
+        assertTrue(rs.size() == 2); // 2 because it also includes the empty key value column
+        PColumn nameColumn = conn.unwrap(PhoenixConnection.class).getTable(new PTableKey(null, tableName)).getPColumnForColumnName("NAME");
+        ArrayColumnExpression colExpression = new ArrayColumnExpression(nameColumn, "NAME", true);
+        ImmutableBytesPtr ptr = new ImmutableBytesPtr();
+        colExpression.evaluate(new ResultTuple(rs), ptr);
+        assertEquals(new ImmutableBytesPtr(PVarchar.INSTANCE.toBytes("v1")), ptr);
+        
         rs = scanner.next();
-        assertFalse(rs.containsColumn(QueryConstants.DEFAULT_COLUMN_FAMILY_BYTES, Bytes.toBytes("NAME")));
-        // and no delete marker either
-        assertTrue(rs.size() == 1);
+        assertTrue(rs.size() == 2); // 2 because it also includes the empty key value column
+        
+        // assert null stored as empty 
+        ptr = new ImmutableBytesPtr();
+        colExpression.evaluate(new ResultTuple(rs), ptr);
+        assertEquals(new ImmutableBytesPtr(ByteUtil.EMPTY_BYTE_ARRAY), ptr);
         assertNull(scanner.next());
         scanner.close();
         htable.close();

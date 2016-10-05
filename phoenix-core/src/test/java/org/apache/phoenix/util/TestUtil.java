@@ -304,11 +304,11 @@ public class TestUtil {
     }
 
     public static Expression constantComparison(CompareOp op, PColumn c, Object o) {
-        return  new ComparisonExpression(Arrays.<Expression>asList(new KeyValueColumnExpression(c), LiteralExpression.newConstant(o)), op);
+        return  new ComparisonExpression(Arrays.<Expression>asList(new KeyValueColumnExpression(c, true), LiteralExpression.newConstant(o)), op);
     }
 
     public static Expression kvColumn(PColumn c) {
-        return new KeyValueColumnExpression(c);
+        return new KeyValueColumnExpression(c, true);
     }
 
     public static Expression pkColumn(PColumn c, List<PColumn> columns) {
@@ -610,7 +610,7 @@ public class TestUtil {
     }
 
     public static void analyzeTable(Connection conn, String tableName) throws IOException, SQLException {
-    	analyzeTable(conn, tableName, false);
+        analyzeTable(conn, tableName, false);
     }
     
     public static void analyzeTable(Connection conn, String tableName, boolean transactional) throws IOException, SQLException {
@@ -652,17 +652,17 @@ public class TestUtil {
         Date date = new Date(DateUtil.parseDate("2015-01-01 00:00:00").getTime() + (i - 1) * MILLIS_IN_DAY);
         stmt.setDate(6, date);
     }
-	
+    
     public static void validateRowKeyColumns(ResultSet rs, int i) throws SQLException {
-		assertTrue(rs.next());
-		assertEquals(rs.getString(1), "varchar" + String.valueOf(i));
-		assertEquals(rs.getString(2), "char" + String.valueOf(i));
-		assertEquals(rs.getInt(3), i);
-		assertEquals(rs.getInt(4), i);
-		assertEquals(rs.getBigDecimal(5), new BigDecimal(i*0.5d));
-		Date date = new Date(DateUtil.parseDate("2015-01-01 00:00:00").getTime() + (i - 1) * MILLIS_IN_DAY);
-		assertEquals(rs.getDate(6), date);
-	}
+        assertTrue(rs.next());
+        assertEquals(rs.getString(1), "varchar" + String.valueOf(i));
+        assertEquals(rs.getString(2), "char" + String.valueOf(i));
+        assertEquals(rs.getInt(3), i);
+        assertEquals(rs.getInt(4), i);
+        assertEquals(rs.getBigDecimal(5), new BigDecimal(i*0.5d));
+        Date date = new Date(DateUtil.parseDate("2015-01-01 00:00:00").getTime() + (i - 1) * MILLIS_IN_DAY);
+        assertEquals(rs.getDate(6), date);
+    }
     
     public static String getTableName(Boolean mutable, Boolean transactional) {
         StringBuilder tableNameBuilder = new StringBuilder(DEFAULT_DATA_TABLE_NAME);
@@ -694,7 +694,7 @@ public class TestUtil {
                 
                 @Override
                 public SortOrder getSortOrder() {
-                	return SortOrder.getDefault();
+                    return SortOrder.getDefault();
                 }
                 
                 @Override
@@ -720,11 +720,15 @@ public class TestUtil {
                 public boolean isRowTimestamp() {
                     return false;
                 }
-    			@Override
-    			public boolean isDynamic() {
-    				return false;
-    			}
-            })), null);
+                @Override
+                public boolean isDynamic() {
+                    return false;
+                }
+                @Override
+                public Integer getEncodedColumnQualifier() {
+                    return null;
+                }
+            }, false)), null);
             aggregationManager.setAggregators(new ClientAggregators(Collections.<SingleAggregateFunction>singletonList(func), 1));
             ClientAggregators aggregators = aggregationManager.getAggregators();
             return aggregators;
@@ -821,4 +825,3 @@ public class TestUtil {
     }
 
 }
-

@@ -17,10 +17,17 @@
  */
 package org.apache.phoenix.schema;
 
+import static org.apache.phoenix.util.EncodedColumnsUtil.usesEncodedColumnNames;
+
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Arrays;
+
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.http.annotation.Immutable;
 import org.apache.phoenix.compile.ExpressionCompiler;
 import org.apache.phoenix.compile.StatementContext;
+import org.apache.phoenix.expression.ArrayColumnExpression;
 import org.apache.phoenix.expression.Expression;
 import org.apache.phoenix.expression.KeyValueColumnExpression;
 import org.apache.phoenix.expression.ProjectedColumnExpression;
@@ -30,13 +37,11 @@ import org.apache.phoenix.jdbc.PhoenixConnection;
 import org.apache.phoenix.jdbc.PhoenixStatement;
 import org.apache.phoenix.parse.ParseNode;
 import org.apache.phoenix.parse.SQLParser;
+import org.apache.phoenix.schema.PTable.StorageScheme;
+import org.apache.phoenix.util.EncodedColumnsUtil;
 import org.apache.phoenix.util.ExpressionUtil;
 import org.apache.phoenix.util.PhoenixRuntime;
 import org.apache.phoenix.util.SchemaUtil;
-
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.Arrays;
 
 
 /**
@@ -59,7 +64,7 @@ public class ColumnRef {
     }
 
     public ColumnRef(TableRef tableRef, String familyName, String columnName) throws MetaDataEntityNotFoundException {
-        this(tableRef, tableRef.getTable().getColumnFamily(familyName).getColumn(columnName).getPosition());
+        this(tableRef, tableRef.getTable().getColumnFamily(familyName).getPColumnForColumnName(columnName).getPosition());
     }
 
     public ColumnRef(TableRef tableRef, int columnPosition) {
@@ -123,7 +128,7 @@ public class ColumnRef {
         	return new ProjectedColumnExpression(column, table, displayName);
         }
 
-        Expression expression = new KeyValueColumnExpression(column, displayName);
+        Expression expression = new KeyValueColumnExpression(column, displayName, usesEncodedColumnNames(table));
 
         if (column.getExpressionStr() != null) {
             String url = PhoenixRuntime.JDBC_PROTOCOL
@@ -141,7 +146,10 @@ public class ColumnRef {
             }
         }
        
-        return expression;
+        if (table.getStorageScheme() == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL) {
+            return new ArrayColumnExpression(column, displayName, EncodedColumnsUtil.usesEncodedColumnNames(table.getStorageScheme()));
+        }
+        return new KeyValueColumnExpression(column, displayName, EncodedColumnsUtil.usesEncodedColumnNames(table.getStorageScheme()));
     }
 
     public ColumnRef cloneAtTimestamp(long timestamp) {

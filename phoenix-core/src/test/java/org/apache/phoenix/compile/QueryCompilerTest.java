@@ -170,7 +170,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
             String query = "CREATE TABLE t1 (k integer not null primary key, a.k decimal, b.k decimal)";
             conn.createStatement().execute(query);
             PhoenixConnection pconn = conn.unwrap(PhoenixConnection.class);
-            PColumn c = pconn.getTable(new PTableKey(pconn.getTenantId(), "T1")).getColumn("K");
+            PColumn c = pconn.getTable(new PTableKey(pconn.getTenantId(), "T1")).getPColumnForColumnName("K");
             assertTrue(SchemaUtil.isPKColumn(c));
         } finally {
             conn.close();
@@ -2623,7 +2623,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         conn.createStatement().execute(ddl);
         PTable table = conn.unwrap(PhoenixConnection.class).getMetaDataCache()
                 .getTableRef(new PTableKey(null,"TABLE_WITH_DEFAULT")).getTable();
-        assertNull(table.getColumn("V").getExpressionStr());
+        assertNull(table.getPColumnForColumnName("V").getExpressionStr());
     }
 
     @Test
@@ -2638,7 +2638,7 @@ public class QueryCompilerTest extends BaseConnectionlessQueryTest {
         conn.createStatement().execute(ddl2);
         PTable table = conn.unwrap(PhoenixConnection.class).getMetaDataCache()
                 .getTableRef(new PTableKey(null,"TABLE_WITH_DEFAULT")).getTable();
-        assertNull(table.getColumn("V").getExpressionStr());
+        assertNull(table.getPColumnForColumnName("V").getExpressionStr());
     }
 
     @Test

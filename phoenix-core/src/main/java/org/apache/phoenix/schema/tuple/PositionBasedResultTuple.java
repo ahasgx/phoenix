@@ -17,36 +17,29 @@
  */
 package org.apache.phoenix.schema.tuple;
 
-import java.util.Collections;
+import static com.google.common.base.Preconditions.checkArgument;
+
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.phoenix.hbase.index.util.GenericKeyValueBuilder;
-import org.apache.phoenix.util.KeyValueUtil;
+import org.apache.phoenix.util.EncodedColumnsUtil;
 
-/**
- * 
- * Wrapper around {@link Result} that implements Phoenix's {@link Tuple} interface.
- *
- */
-public class ResultTuple extends BaseTuple {
-    private final Result result;
-    public static final ResultTuple EMPTY_TUPLE = new ResultTuple(Result.create(Collections.<Cell>emptyList()));
+public class PositionBasedResultTuple extends BaseTuple {
+    private final EncodedColumnQualiferCellsList cells;
     
-    public ResultTuple(Result result) {
-        this.result = result;
+    public PositionBasedResultTuple(List<Cell> list) {
+        checkArgument(list instanceof EncodedColumnQualiferCellsList, "Invalid list type");
+        this.cells = (EncodedColumnQualiferCellsList)list;
     }
     
-    public Result getResult() {
-        return this.result;
-    }
-
     @Override
     public void getKey(ImmutableBytesWritable ptr) {
-        ptr.set(result.getRow());
+        Cell value = cells.getFirstCell();
+        ptr.set(value.getRowArray(), value.getRowOffset(), value.getRowLength());
     }
 
     @Override
@@ -56,22 +49,21 @@ public class ResultTuple extends BaseTuple {
 
     @Override
     public KeyValue getValue(byte[] family, byte[] qualifier) {
-        Cell cell = KeyValueUtil.getColumnLatest(GenericKeyValueBuilder.INSTANCE, 
-          result.rawCells(), family, qualifier);
-        return org.apache.hadoop.hbase.KeyValueUtil.ensureKeyValue(cell);
+        int columnQualifier = EncodedColumnsUtil.getEncodedColumnQualifier(qualifier);
+        return org.apache.hadoop.hbase.KeyValueUtil.ensureKeyValue(cells.getCellForColumnQualifier(columnQualifier));
     }
 
     @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append("keyvalues=");
-      if(this.result == null || this.result.isEmpty()) {
+      if(this.cells == null || this.cells.isEmpty()) {
         sb.append("NONE");
         return sb.toString();
       }
       sb.append("{");
       boolean moreThanOne = false;
-      for(Cell kv : this.result.listCells()) {
+      for(Cell kv : this.cells) {
         if(moreThanOne) {
           sb.append(", \n");
         } else {
@@ -86,13 +78,12 @@ public class ResultTuple extends BaseTuple {
 
     @Override
     public int size() {
-        return result.size();
+        return cells.size();
     }
 
     @Override
     public KeyValue getValue(int index) {
-        return  org.apache.hadoop.hbase.KeyValueUtil.ensureKeyValue(
-          result.rawCells()[index]);
+        return org.apache.hadoop.hbase.KeyValueUtil.ensureKeyValue(index == 0 ? cells.getFirstCell() : cells.get(index));
     }
 
     @Override
@@ -103,5 +94,33 @@ public class ResultTuple extends BaseTuple {
             return false;
         ptr.set(kv.getValueArray(), kv.getValueOffset(), kv.getValueLength());
         return true;
+    }
+    
+    public Iterator<Cell> getTupleIterator() {
+        return new TupleIterator(cells.iterator());
+    }
+    
+    private static class TupleIterator implements Iterator<Cell> {
+        
+        private final Iterator<Cell> delegate;
+        private TupleIterator(Iterator<Cell> delegate) {
+            this.delegate = delegate;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return delegate.hasNext();
+        }
+
+        @Override
+        public Cell next() {
+            return delegate.next();
+        }
+
+        @Override
+        public void remove() {
+            delegate.remove();
+        }
+        
     }
 }

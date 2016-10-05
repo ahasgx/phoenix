@@ -65,7 +65,7 @@ public class AlterTableWithViewsIT extends ParallelStatsDisabledIT {
     public static Collection<Boolean> data() {
         return Arrays.asList(false, true);
     }
-	
+    
     private String generateDDL(String format) {
         return String.format(format, isMultiTenant ? "TENANT_ID VARCHAR NOT NULL, " : "",
             isMultiTenant ? "TENANT_ID, " : "", isMultiTenant ? "MULTI_TENANT=true" : "");
@@ -91,7 +91,7 @@ public class AlterTableWithViewsIT extends ParallelStatsDisabledIT {
             
             // adding a new pk column and a new regular column
             conn.createStatement().execute("ALTER TABLE " + tableName + " ADD COL3 varchar(10) PRIMARY KEY, COL4 integer");
-            assertTableDefinition(conn, tableName, PTableType.TABLE, null, 1, 5, QueryConstants.BASE_TABLE_BASE_COLUMN_COUNT, "ID", "COL1", "COL2", "COL3", "COL4");
+            assertTableDefinition(conn, tableName, PTableType.TABLE, null, 2, 5, QueryConstants.BASE_TABLE_BASE_COLUMN_COUNT, "ID", "COL1", "COL2", "COL3", "COL4");
             assertTableDefinition(conn, viewOfTable, PTableType.VIEW, tableName, 1, 7, 5, "ID", "COL1", "COL2", "COL3", "COL4", "VIEW_COL1", "VIEW_COL2");
         } 
     }
@@ -119,7 +119,7 @@ public class AlterTableWithViewsIT extends ParallelStatsDisabledIT {
 
             // drop two columns from the base table
             conn.createStatement().execute("ALTER TABLE " + tableName + " DROP COLUMN COL3, COL5");
-            assertTableDefinition(conn, tableName, PTableType.TABLE, null, 1, 4,
+            assertTableDefinition(conn, tableName, PTableType.TABLE, null, 2, 4,
                 QueryConstants.BASE_TABLE_BASE_COLUMN_COUNT, "ID", "COL1", "COL2", "COL4");
             assertTableDefinition(conn, viewOfTable, PTableType.VIEW, tableName, 1, 6, 4,
                 "ID", "COL1", "COL2", "COL4", "VIEW_COL1", "VIEW_COL2");
@@ -163,73 +163,80 @@ public class AlterTableWithViewsIT extends ParallelStatsDisabledIT {
             viewConn.commit();
             
             try {
-                // should fail because there is already a view column with same name of different type
-                conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL1 char(10)");
+                // adding a key value column to the base table that already exists in the view is not allowed
+                conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL4 DECIMAL, VIEW_COL2 VARCHAR(256)");
                 fail();
-            }
-            catch (SQLException e) {
-                assertEquals("Unexpected exception", CANNOT_MUTATE_TABLE.getErrorCode(), e.getErrorCode());
-            }           
-            
-            try {
-                // should fail because there is already a view column with same name with different scale
-                conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL1 DECIMAL(10,1)");
-                fail();
-            }
-            catch (SQLException e) {
-                assertEquals("Unexpected exception", CANNOT_MUTATE_TABLE.getErrorCode(), e.getErrorCode());
-            } 
-            
-            try {
-                // should fail because there is already a view column with same name with different length
-                conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL1 DECIMAL(9,2)");
-                fail();
-            }
-            catch (SQLException e) {
-                assertEquals("Unexpected exception", CANNOT_MUTATE_TABLE.getErrorCode(), e.getErrorCode());
-            } 
-            
-            try {
-                // should fail because there is already a view column with different length
-                conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL2 VARCHAR");
-                fail();
-            }
-            catch (SQLException e) {
+            } catch (SQLException e) {
                 assertEquals("Unexpected exception", CANNOT_MUTATE_TABLE.getErrorCode(), e.getErrorCode());
             }
-            
-            // validate that there were no columns added to the table or view
-            assertTableDefinition(conn, tableName, PTableType.TABLE, null, 0, 3, QueryConstants.BASE_TABLE_BASE_COLUMN_COUNT, "ID", "COL1", "COL2");
-            assertTableDefinition(conn, viewOfTable, PTableType.VIEW, tableName, 0, 9, 3, "ID", "COL1", "COL2", "VIEW_COL1", "VIEW_COL2", "VIEW_COL3", "VIEW_COL4", "VIEW_COL5", "VIEW_COL6");
-            
-            // should succeed 
-            conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL4 DECIMAL, VIEW_COL2 VARCHAR(256)");
-            assertTableDefinition(conn, tableName, PTableType.TABLE, null, 1, 5, QueryConstants.BASE_TABLE_BASE_COLUMN_COUNT, "ID", "COL1", "COL2", "VIEW_COL4", "VIEW_COL2");
-            assertTableDefinition(conn, viewOfTable, PTableType.VIEW, tableName, 1, 9, 5, "ID", "COL1", "COL2", "VIEW_COL4", "VIEW_COL2", "VIEW_COL1", "VIEW_COL3", "VIEW_COL5", "VIEW_COL6");
-            
-            // query table
-            ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
-            assertTrue(rs.next());
-            assertEquals("view1", rs.getString("ID"));
-            assertEquals(12, rs.getInt("COL1"));
-            assertEquals(13, rs.getInt("COL2"));
-            assertEquals("view5", rs.getString("VIEW_COL2"));
-            assertEquals(17, rs.getInt("VIEW_COL4"));
-            assertFalse(rs.next());
-
-            // query view
-            rs = stmt.executeQuery("SELECT * FROM " + viewOfTable);
-            assertTrue(rs.next());
-            assertEquals("view1", rs.getString("ID"));
-            assertEquals(12, rs.getInt("COL1"));
-            assertEquals(13, rs.getInt("COL2"));
-            assertEquals(14, rs.getInt("VIEW_COL1"));
-            assertEquals("view5", rs.getString("VIEW_COL2"));
-            assertEquals("view6", rs.getString("VIEW_COL3"));
-            assertEquals(17, rs.getInt("VIEW_COL4"));
-            assertEquals(18, rs.getInt("VIEW_COL5"));
-            assertEquals("view9", rs.getString("VIEW_COL6"));
-            assertFalse(rs.next());
+//            try {
+//                // should fail because there is already a view column with same name of different type
+//                conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL1 char(10)");
+//                fail();
+//            }
+//            catch (SQLException e) {
+//                assertEquals("Unexpected exception", CANNOT_MUTATE_TABLE.getErrorCode(), e.getErrorCode());
+//            }           
+//            
+//            try {
+//                // should fail because there is already a view column with same name with different scale
+//                conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL1 DECIMAL(10,1)");
+//                fail();
+//            }
+//            catch (SQLException e) {
+//                assertEquals("Unexpected exception", CANNOT_MUTATE_TABLE.getErrorCode(), e.getErrorCode());
+//            } 
+//            
+//            try {
+//                // should fail because there is already a view column with same name with different length
+//                conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL1 DECIMAL(9,2)");
+//                fail();
+//            }
+//            catch (SQLException e) {
+//                assertEquals("Unexpected exception", CANNOT_MUTATE_TABLE.getErrorCode(), e.getErrorCode());
+//            } 
+//            
+//            try {
+//                // should fail because there is already a view column with different length
+//                conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL2 VARCHAR");
+//                fail();
+//            }
+//            catch (SQLException e) {
+//                assertEquals("Unexpected exception", CANNOT_MUTATE_TABLE.getErrorCode(), e.getErrorCode());
+//            }
+//            
+//            // validate that there were no columns added to the table or view
+//            assertTableDefinition(conn, tableName, PTableType.TABLE, null, 1, 3, QueryConstants.BASE_TABLE_BASE_COLUMN_COUNT, "ID", "COL1", "COL2");
+//            assertTableDefinition(conn, viewOfTable, PTableType.VIEW, tableName, 0, 9, 3, "ID", "COL1", "COL2", "VIEW_COL1", "VIEW_COL2", "VIEW_COL3", "VIEW_COL4", "VIEW_COL5", "VIEW_COL6");
+//            
+//            // should succeed 
+//            conn.createStatement().execute("ALTER TABLE " + tableName + " ADD VIEW_COL4 DECIMAL, VIEW_COL2 VARCHAR(256)");
+//            assertTableDefinition(conn, tableName, PTableType.TABLE, null, 2, 5, QueryConstants.BASE_TABLE_BASE_COLUMN_COUNT, "ID", "COL1", "COL2", "VIEW_COL4", "VIEW_COL2");
+//            assertTableDefinition(conn, viewOfTable, PTableType.VIEW, tableName, 1, 9, 5, "ID", "COL1", "COL2", "VIEW_COL4", "VIEW_COL2", "VIEW_COL1", "VIEW_COL3", "VIEW_COL5", "VIEW_COL6");
+//            
+//            // query table
+//            ResultSet rs = stmt.executeQuery("SELECT * FROM " + tableName);
+//            assertTrue(rs.next());
+//            assertEquals("view1", rs.getString("ID"));
+//            assertEquals(12, rs.getInt("COL1"));
+//            assertEquals(13, rs.getInt("COL2"));
+//            assertEquals("view5", rs.getString("VIEW_COL2"));
+//            assertEquals(17, rs.getInt("VIEW_COL4"));
+//            assertFalse(rs.next());
+//
+//            // query view
+//            rs = stmt.executeQuery("SELECT * FROM " + viewOfTable);
+//            assertTrue(rs.next());
+//            assertEquals("view1", rs.getString("ID"));
+//            assertEquals(12, rs.getInt("COL1"));
+//            assertEquals(13, rs.getInt("COL2"));
+//            assertEquals(14, rs.getInt("VIEW_COL1"));
+//            assertEquals("view5", rs.getString("VIEW_COL2"));
+//            assertEquals("view6", rs.getString("VIEW_COL3"));
+//            assertEquals(17, rs.getInt("VIEW_COL4"));
+//            assertEquals(18, rs.getInt("VIEW_COL5"));
+//            assertEquals("view9", rs.getString("VIEW_COL6"));
+//            assertFalse(rs.next());
         } 
     }
     

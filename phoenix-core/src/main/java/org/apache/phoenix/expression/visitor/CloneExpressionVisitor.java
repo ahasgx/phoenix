@@ -26,6 +26,7 @@ import org.apache.phoenix.expression.ArrayConstructorExpression;
 import org.apache.phoenix.expression.CaseExpression;
 import org.apache.phoenix.expression.CoerceExpression;
 import org.apache.phoenix.expression.ComparisonExpression;
+import org.apache.phoenix.expression.ArrayColumnExpression;
 import org.apache.phoenix.expression.CorrelateVariableFieldAccessExpression;
 import org.apache.phoenix.expression.DivideExpression;
 import org.apache.phoenix.expression.Expression;
@@ -78,6 +79,11 @@ public abstract class CloneExpressionVisitor extends TraverseAllExpressionVisito
 
     @Override
     public Expression visit(KeyValueColumnExpression node) {
+        return node;
+    }
+    
+    @Override
+    public Expression visit(ArrayColumnExpression node) {
         return node;
     }
 

@@ -136,7 +136,6 @@ public class ConnectionlessTest {
         conn.rollback(); // to clear the list of mutations for the next
     }
     
-    @SuppressWarnings("deprecation")
     private static void assertRow1(Iterator<KeyValue> iterator, byte[] expectedRowKey1) {
         KeyValue kv;
         assertTrue(iterator.hasNext());
@@ -153,7 +152,6 @@ public class ConnectionlessTest {
         assertEquals(QueryConstants.EMPTY_COLUMN_VALUE, PVarchar.INSTANCE.toObject(kv.getValue()));
     }
 
-    @SuppressWarnings("deprecation")
     private static void assertRow2(Iterator<KeyValue> iterator, byte[] expectedRowKey2) {
         KeyValue kv;
         assertTrue(iterator.hasNext());

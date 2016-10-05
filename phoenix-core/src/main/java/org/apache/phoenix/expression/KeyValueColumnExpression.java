@@ -28,6 +28,7 @@ import org.apache.phoenix.expression.visitor.ExpressionVisitor;
 import org.apache.phoenix.schema.PColumn;
 import org.apache.phoenix.schema.PDatum;
 import org.apache.phoenix.schema.tuple.Tuple;
+import org.apache.phoenix.util.EncodedColumnsUtil;
 import org.apache.phoenix.util.SchemaUtil;
 
 
@@ -41,13 +42,13 @@ import org.apache.phoenix.util.SchemaUtil;
 public class KeyValueColumnExpression extends ColumnExpression {
     private byte[] cf;
     private byte[] cq;
-    private String displayName; // client-side only
+    private String displayName; // client-side only. TODO: samarth see what can you do for encoded column names.
 
     public KeyValueColumnExpression() {
     }
 
-    public KeyValueColumnExpression(PColumn column) {
-        this(column, null);
+    public KeyValueColumnExpression(PColumn column, boolean encodedColumnName) {
+        this(column, null, encodedColumnName);
     }
 
     public KeyValueColumnExpression(PDatum column, byte[] cf, byte[] cq) {
@@ -56,18 +57,18 @@ public class KeyValueColumnExpression extends ColumnExpression {
         this.cq = cq;
     }
 
-    public KeyValueColumnExpression(PColumn column, String displayName) {
+    public KeyValueColumnExpression(PColumn column, String displayName, boolean encodedColumnName) {
         super(column);
         this.cf = column.getFamilyName().getBytes();
-        this.cq = column.getName().getBytes();
+        this.cq = EncodedColumnsUtil.getColumnQualifier(column, encodedColumnName);
         this.displayName = displayName;
     }
 
     public byte[] getColumnFamily() {
         return cf;
     }
-
-    public byte[] getColumnName() {
+    
+    public byte[] getColumnQualifier() {
         return cq;
     }
 
@@ -120,7 +121,7 @@ public class KeyValueColumnExpression extends ColumnExpression {
     }
 
     @Override
-    public final <T> T accept(ExpressionVisitor<T> visitor) {
+    public <T> T accept(ExpressionVisitor<T> visitor) {
         return visitor.visit(this);
     }
 }
