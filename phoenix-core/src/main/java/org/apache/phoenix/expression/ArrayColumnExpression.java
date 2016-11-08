@@ -43,21 +43,21 @@ import org.apache.phoenix.util.SchemaUtil;
  */
 public class ArrayColumnExpression extends KeyValueColumnExpression {
     
-    private int encodedCQ;
-    private String displayName;
+    private int positionInArray;
+    private String arrayColDisplayName;
     
     public ArrayColumnExpression() {
     }
     
     public ArrayColumnExpression(PDatum column, byte[] cf, int encodedCQ) {
         super(column, cf, cf);
-        this.encodedCQ = encodedCQ;
+        this.positionInArray = encodedCQ;
     }
     
     public ArrayColumnExpression(PColumn column, String displayName, boolean encodedColumnName) {
         super(column, column.getFamilyName().getBytes(), column.getFamilyName().getBytes());
-        this.displayName = SchemaUtil.getColumnDisplayName(column.getFamilyName().getString(), column.getName().getString());
-        this.encodedCQ = column.getEncodedColumnQualifier();
+        this.arrayColDisplayName = displayName;
+        this.positionInArray = column.getEncodedColumnQualifier();
     }
 
     @Override
@@ -70,20 +70,20 @@ public class ArrayColumnExpression extends KeyValueColumnExpression {
 
         // Given a ptr to the entire array, set ptr to point to a particular element within that array
         // given the type of an array element (see comments in PDataTypeForArray)
-    	PArrayDataType.positionAtArrayElement(ptr, encodedCQ, PVarbinary.INSTANCE, null);
+    	PArrayDataType.positionAtArrayElement(ptr, positionInArray, PVarbinary.INSTANCE, null);
         return true;
     }
 
     @Override
     public void readFields(DataInput input) throws IOException {
         super.readFields(input);
-        encodedCQ = WritableUtils.readVInt(input);
+        positionInArray = WritableUtils.readVInt(input);
     }
 
     @Override
     public void write(DataOutput output) throws IOException {
         super.write(output);
-        WritableUtils.writeVInt(output, encodedCQ);
+        WritableUtils.writeVInt(output, positionInArray);
     }
     
     public KeyValueColumnExpression getKeyValueExpression() {
@@ -118,16 +118,19 @@ public class ArrayColumnExpression extends KeyValueColumnExpression {
 			public PDataType getDataType() {
 				return datatype;
 			}
-		}, getColumnFamily(), getEncodedColumnQualifier());
+		}, getColumnFamily(), getPositionInArray());
     }
     
     @Override
     public String toString() {
-        return displayName;
+        if (arrayColDisplayName == null) {
+            arrayColDisplayName = SchemaUtil.getColumnDisplayName(getColumnFamily(), getColumnQualifier());
+        }
+        return arrayColDisplayName;
     }
     
-    public byte[] getEncodedColumnQualifier() {
-        return EncodedColumnsUtil.getEncodedColumnQualifier(encodedCQ);
+    public byte[] getPositionInArray() {
+        return EncodedColumnsUtil.getEncodedColumnQualifier(positionInArray);
     }
     
     @Override

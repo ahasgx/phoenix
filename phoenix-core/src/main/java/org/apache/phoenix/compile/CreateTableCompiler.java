@@ -329,7 +329,7 @@ public class CreateTableCompiler {
         @Override
         public Boolean visit(ArrayColumnExpression node) {
             try {
-                this.position = table.getColumnFamily(node.getColumnFamily()).getPColumnForColumnQualifier(node.getEncodedColumnQualifier()).getPosition();
+                this.position = table.getColumnFamily(node.getColumnFamily()).getPColumnForColumnQualifier(node.getPositionInArray()).getPosition();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
