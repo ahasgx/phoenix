@@ -25,6 +25,7 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.phoenix.compile.CreateTableCompiler.ViewWhereExpressionVisitor;
 import org.apache.phoenix.expression.visitor.ExpressionVisitor;
+import org.apache.phoenix.query.QueryConstants;
 import org.apache.phoenix.schema.PColumn;
 import org.apache.phoenix.schema.PDatum;
 import org.apache.phoenix.schema.SortOrder;
@@ -45,19 +46,22 @@ public class ArrayColumnExpression extends KeyValueColumnExpression {
     
     private int positionInArray;
     private String arrayColDisplayName;
+    private KeyValueColumnExpression keyValueColumnExpression;
     
     public ArrayColumnExpression() {
     }
     
     public ArrayColumnExpression(PDatum column, byte[] cf, int encodedCQ) {
-        super(column, cf, cf);
+        super(column, cf, QueryConstants.SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES);
         this.positionInArray = encodedCQ;
+        setKeyValueExpression();
     }
     
     public ArrayColumnExpression(PColumn column, String displayName, boolean encodedColumnName) {
-        super(column, column.getFamilyName().getBytes(), column.getFamilyName().getBytes());
+        super(column, column.getFamilyName().getBytes(), QueryConstants.SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES);
         this.arrayColDisplayName = displayName;
         this.positionInArray = column.getEncodedColumnQualifier();
+        setKeyValueExpression();
     }
 
     @Override
@@ -77,7 +81,8 @@ public class ArrayColumnExpression extends KeyValueColumnExpression {
     @Override
     public void readFields(DataInput input) throws IOException {
         super.readFields(input);
-        positionInArray = WritableUtils.readVInt(input);
+        this.positionInArray = WritableUtils.readVInt(input);
+        setKeyValueExpression();
     }
 
     @Override
@@ -87,13 +92,16 @@ public class ArrayColumnExpression extends KeyValueColumnExpression {
     }
     
     public KeyValueColumnExpression getKeyValueExpression() {
-    	final boolean isNullable = isNullable();
-    	final SortOrder sortOrder = getSortOrder();
-    	final Integer scale = getScale();
-    	final Integer maxLength = getMaxLength();
-    	final PDataType datatype = getDataType();
-        return new KeyValueColumnExpression(new PDatum() {
-			
+        return keyValueColumnExpression;
+    }
+    
+    private void setKeyValueExpression() {
+        final boolean isNullable = isNullable();
+        final SortOrder sortOrder = getSortOrder();
+        final Integer scale = getScale();
+        final Integer maxLength = getMaxLength();
+        final PDataType datatype = getDataType();
+    	this.keyValueColumnExpression = new KeyValueColumnExpression(new PDatum() {
 			@Override
 			public boolean isNullable() {
 				return isNullable;

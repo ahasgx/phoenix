@@ -25,7 +25,6 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -938,18 +937,18 @@ public class IndexMaintainer implements Writable, Iterable<ColumnReference> {
         ImmutableBytesPtr rowKey = new ImmutableBytesPtr(indexRowKey);
         if (storeColsInSingleCell) {
             // map from index column family to list of pair of index column and data column (for covered columns)
-            Map<ByteBuffer, List<Pair<ColumnReference, ColumnReference>>> familyToColListMap = Maps.newHashMap();
+            Map<ImmutableBytesPtr, List<Pair<ColumnReference, ColumnReference>>> familyToColListMap = Maps.newHashMap();
             for (ColumnReference ref : this.getCoveredColumns()) {
             	ColumnReference indexColRef = this.coveredColumnsMap.get(ref);
-                ByteBuffer cf = ByteBuffer.wrap(indexColRef.getFamily());
+            	ImmutableBytesPtr cf = new ImmutableBytesPtr(indexColRef.getFamily());
                 if (!familyToColListMap.containsKey(cf)) {
                     familyToColListMap.put(cf, Lists.<Pair<ColumnReference, ColumnReference>>newArrayList());
                 }
                 familyToColListMap.get(cf).add(Pair.newPair(indexColRef, ref));
             }
             // iterate over each column family and create a byte[] containing all the columns 
-            for (Entry<ByteBuffer, List<Pair<ColumnReference, ColumnReference>>> entry : familyToColListMap.entrySet()) {
-                byte[] columnFamily = entry.getKey().array();
+            for (Entry<ImmutableBytesPtr, List<Pair<ColumnReference, ColumnReference>>> entry : familyToColListMap.entrySet()) {
+                byte[] columnFamily = entry.getKey().copyBytesIfNecessary();
                 List<Pair<ColumnReference, ColumnReference>> colRefPairs = entry.getValue();
                 int maxIndex = Integer.MIN_VALUE;
                 // find the max col qualifier
@@ -1014,7 +1013,7 @@ public class IndexMaintainer implements Writable, Iterable<ColumnReference> {
                 }
                 ImmutableBytesPtr colFamilyPtr = new ImmutableBytesPtr(columnFamily);
                 //this is a little bit of extra work for installations that are running <0.94.14, but that should be rare and is a short-term set of wrappers - it shouldn't kill GC
-                put.add(kvBuilder.buildPut(rowKey, colFamilyPtr, colFamilyPtr, ts, ptr));
+                put.add(kvBuilder.buildPut(rowKey, colFamilyPtr, QueryConstants.SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES_PTR, ts, ptr));
             }
         }
         else {

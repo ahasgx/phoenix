@@ -914,7 +914,7 @@ public class PTableImpl implements PTable {
                         arrayExpression.evaluate(new BaseTuple() {}, ptr);
                         ImmutableBytesPtr colFamilyPtr = new ImmutableBytesPtr(columnFamily);
                         addQuietly(put, kvBuilder, kvBuilder.buildPut(keyPtr,
-                            colFamilyPtr, colFamilyPtr, ts, ptr));
+                            colFamilyPtr, QueryConstants.SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES_PTR, ts, ptr));
                     }
                     setValues = put;
                 }
@@ -988,7 +988,7 @@ public class PTableImpl implements PTable {
                 ptr.set(byteValue);
                 type.pad(ptr, maxLength, sortOrder);
                 removeIfPresent(unsetValues, family, qualifier);
-             // store all columns for a given column family in a single cell instead of one column per cell in order to improve write performance
+                // store all columns for a given column family in a single cell instead of one column per cell in order to improve write performance
                 // we don't need to do anything with unsetValues as it is only used when storeNulls is false, storeNulls is always true when storeColsInSingleCell is true
                 if (storageScheme == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY) {
                     columnToValueMap.put(column, ptr.get());
