@@ -37,6 +37,7 @@ import org.apache.phoenix.exception.SQLExceptionCode;
 import org.apache.phoenix.util.ByteUtil;
 import org.apache.phoenix.util.DateUtil;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -257,7 +258,7 @@ public class DefaultColumnValueIT extends ParallelStatsDisabledIT {
         assertFalse(rs.next());
     }
 
-    @Test
+    @Ignore //FIXME: PHOENIX-3442
     public void testDefaultImmutableRows() throws Exception {
         String table = generateUniqueName();
         String ddl = "CREATE TABLE IF NOT EXISTS " + table + " (" +
