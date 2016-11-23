@@ -26,7 +26,6 @@ import org.apache.phoenix.query.QueryConstants;
 import org.apache.phoenix.schema.PColumn;
 import org.apache.phoenix.schema.PTable;
 import org.apache.phoenix.schema.PTable.StorageScheme;
-import org.apache.phoenix.schema.types.PInteger;
 
 public class EncodedColumnsUtil {
 

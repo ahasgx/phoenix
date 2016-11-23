@@ -47,7 +47,7 @@ message PColumn {
   optional string expression = 12;
   optional bool isRowTimestamp = 13;
   optional bool isDynamic = 14;
-  optional int32 columnQualifier = 15;
+  optional int32 encodedColumnQualifier = 15;
 }
 
 message PTableStats {
@@ -97,7 +97,8 @@ message PTable {
   optional bool isAppendOnlySchema = 32;
   optional bytes parentNameBytes = 33;
   optional bytes storageScheme = 34;
-  repeated EncodedCQCounter encodedCQCounters = 35;
+  optional bytes encodingScheme = 35;
+  repeated EncodedCQCounter encodedCQCounters = 36;
 }
 
 message EncodedCQCounter {

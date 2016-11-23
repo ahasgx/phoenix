@@ -272,7 +272,7 @@ public abstract class BaseResultIterators extends ExplainTable implements Result
             throws SQLException {
         PTable table = context.getCurrentTable().getTable();
         StorageScheme storageScheme = table.getStorageScheme();
-        checkArgument(storageScheme == StorageScheme.ENCODED_COLUMN_NAMES,
+        checkArgument(storageScheme == StorageScheme.COLUMNS_STORED_IN_INDIVIDUAL_CELLS,
             "Method should only be used for tables using encoded column names");
         Pair<Integer, Integer> minMaxQualifiers = new Pair<>();
         for (Pair<byte[], byte[]> whereCol : context.getWhereConditionColumns()) {

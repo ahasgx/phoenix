@@ -921,7 +921,7 @@ public class ScanUtil {
     }
     
     public static boolean setQualifierRanges(PTable table) {
-        return table.getStorageScheme() != null && table.getStorageScheme() == StorageScheme.ENCODED_COLUMN_NAMES
+        return table.getStorageScheme() != null && table.getStorageScheme() == StorageScheme.COLUMNS_STORED_IN_INDIVIDUAL_CELLS
         		&& !table.isTransactional() && !hasDynamicColumns(table);
     }
     

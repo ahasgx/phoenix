@@ -322,6 +322,8 @@ public class PhoenixDatabaseMetaData implements DatabaseMetaData {
     
     public static final String STORAGE_SCHEME = "STORAGE_SCHEME";
     public static final byte[] STORAGE_SCHEME_BYTES = Bytes.toBytes(STORAGE_SCHEME);
+    public static final String ENCODING_SCHEME = "ENCODING_SCHEME";
+    public static final byte[] ENCODING_SCHEME_BYTES = Bytes.toBytes(ENCODING_SCHEME);
     public static final String ENCODED_COLUMN_QUALIFIER = "COLUMN_QUALIFIER";
     public static final byte[] ENCODED_COLUMN_QUALIFIER_BYTES = Bytes.toBytes(ENCODED_COLUMN_QUALIFIER);
     public static final String COLUMN_QUALIFIER_COUNTER = "QUALIFIER_COUNTER";

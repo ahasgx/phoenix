@@ -1716,7 +1716,7 @@ public class IndexMaintainer implements Writable, Iterable<ColumnReference> {
             return StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL;
         }
         if (usesEncodedColumnNames) {
-            return StorageScheme.ENCODED_COLUMN_NAMES;
+            return StorageScheme.COLUMNS_STORED_IN_INDIVIDUAL_CELLS;
         }
         return StorageScheme.NON_ENCODED_COLUMN_NAMES;
     }

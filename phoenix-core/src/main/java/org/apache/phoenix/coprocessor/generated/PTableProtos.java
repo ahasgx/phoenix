@@ -270,15 +270,15 @@ public final class PTableProtos {
      */
     boolean getIsDynamic();
 
-    // optional int32 columnQualifier = 15;
+    // optional int32 encodedColumnQualifier = 15;
     /**
-     * <code>optional int32 columnQualifier = 15;</code>
+     * <code>optional int32 encodedColumnQualifier = 15;</code>
      */
-    boolean hasColumnQualifier();
+    boolean hasEncodedColumnQualifier();
     /**
-     * <code>optional int32 columnQualifier = 15;</code>
+     * <code>optional int32 encodedColumnQualifier = 15;</code>
      */
-    int getColumnQualifier();
+    int getEncodedColumnQualifier();
   }
   /**
    * Protobuf type {@code PColumn}
@@ -403,7 +403,7 @@ public final class PTableProtos {
             }
             case 120: {
               bitField0_ |= 0x00004000;
-              columnQualifier_ = input.readInt32();
+              encodedColumnQualifier_ = input.readInt32();
               break;
             }
           }
@@ -724,20 +724,20 @@ public final class PTableProtos {
       return isDynamic_;
     }
 
-    // optional int32 columnQualifier = 15;
-    public static final int COLUMNQUALIFIER_FIELD_NUMBER = 15;
-    private int columnQualifier_;
+    // optional int32 encodedColumnQualifier = 15;
+    public static final int ENCODEDCOLUMNQUALIFIER_FIELD_NUMBER = 15;
+    private int encodedColumnQualifier_;
     /**
-     * <code>optional int32 columnQualifier = 15;</code>
+     * <code>optional int32 encodedColumnQualifier = 15;</code>
      */
-    public boolean hasColumnQualifier() {
+    public boolean hasEncodedColumnQualifier() {
       return ((bitField0_ & 0x00004000) == 0x00004000);
     }
     /**
-     * <code>optional int32 columnQualifier = 15;</code>
+     * <code>optional int32 encodedColumnQualifier = 15;</code>
      */
-    public int getColumnQualifier() {
-      return columnQualifier_;
+    public int getEncodedColumnQualifier() {
+      return encodedColumnQualifier_;
     }
 
     private void initFields() {
@@ -755,7 +755,7 @@ public final class PTableProtos {
       expression_ = "";
       isRowTimestamp_ = false;
       isDynamic_ = false;
-      columnQualifier_ = 0;
+      encodedColumnQualifier_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -832,7 +832,7 @@ public final class PTableProtos {
         output.writeBool(14, isDynamic_);
       }
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
-        output.writeInt32(15, columnQualifier_);
+        output.writeInt32(15, encodedColumnQualifier_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -901,7 +901,7 @@ public final class PTableProtos {
       }
       if (((bitField0_ & 0x00004000) == 0x00004000)) {
         size += com.google.protobuf.CodedOutputStream
-          .computeInt32Size(15, columnQualifier_);
+          .computeInt32Size(15, encodedColumnQualifier_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -996,10 +996,10 @@ public final class PTableProtos {
         result = result && (getIsDynamic()
             == other.getIsDynamic());
       }
-      result = result && (hasColumnQualifier() == other.hasColumnQualifier());
-      if (hasColumnQualifier()) {
-        result = result && (getColumnQualifier()
-            == other.getColumnQualifier());
+      result = result && (hasEncodedColumnQualifier() == other.hasEncodedColumnQualifier());
+      if (hasEncodedColumnQualifier()) {
+        result = result && (getEncodedColumnQualifier()
+            == other.getEncodedColumnQualifier());
       }
       result = result &&
           getUnknownFields().equals(other.getUnknownFields());
@@ -1070,9 +1070,9 @@ public final class PTableProtos {
         hash = (37 * hash) + ISDYNAMIC_FIELD_NUMBER;
         hash = (53 * hash) + hashBoolean(getIsDynamic());
       }
-      if (hasColumnQualifier()) {
-        hash = (37 * hash) + COLUMNQUALIFIER_FIELD_NUMBER;
-        hash = (53 * hash) + getColumnQualifier();
+      if (hasEncodedColumnQualifier()) {
+        hash = (37 * hash) + ENCODEDCOLUMNQUALIFIER_FIELD_NUMBER;
+        hash = (53 * hash) + getEncodedColumnQualifier();
       }
       hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
@@ -1211,7 +1211,7 @@ public final class PTableProtos {
         bitField0_ = (bitField0_ & ~0x00001000);
         isDynamic_ = false;
         bitField0_ = (bitField0_ & ~0x00002000);
-        columnQualifier_ = 0;
+        encodedColumnQualifier_ = 0;
         bitField0_ = (bitField0_ & ~0x00004000);
         return this;
       }
@@ -1300,7 +1300,7 @@ public final class PTableProtos {
         if (((from_bitField0_ & 0x00004000) == 0x00004000)) {
           to_bitField0_ |= 0x00004000;
         }
-        result.columnQualifier_ = columnQualifier_;
+        result.encodedColumnQualifier_ = encodedColumnQualifier_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1363,8 +1363,8 @@ public final class PTableProtos {
         if (other.hasIsDynamic()) {
           setIsDynamic(other.getIsDynamic());
         }
-        if (other.hasColumnQualifier()) {
-          setColumnQualifier(other.getColumnQualifier());
+        if (other.hasEncodedColumnQualifier()) {
+          setEncodedColumnQualifier(other.getEncodedColumnQualifier());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1966,35 +1966,35 @@ public final class PTableProtos {
         return this;
       }
 
-      // optional int32 columnQualifier = 15;
-      private int columnQualifier_ ;
+      // optional int32 encodedColumnQualifier = 15;
+      private int encodedColumnQualifier_ ;
       /**
-       * <code>optional int32 columnQualifier = 15;</code>
+       * <code>optional int32 encodedColumnQualifier = 15;</code>
        */
-      public boolean hasColumnQualifier() {
+      public boolean hasEncodedColumnQualifier() {
         return ((bitField0_ & 0x00004000) == 0x00004000);
       }
       /**
-       * <code>optional int32 columnQualifier = 15;</code>
+       * <code>optional int32 encodedColumnQualifier = 15;</code>
        */
-      public int getColumnQualifier() {
-        return columnQualifier_;
+      public int getEncodedColumnQualifier() {
+        return encodedColumnQualifier_;
       }
       /**
-       * <code>optional int32 columnQualifier = 15;</code>
+       * <code>optional int32 encodedColumnQualifier = 15;</code>
        */
-      public Builder setColumnQualifier(int value) {
+      public Builder setEncodedColumnQualifier(int value) {
         bitField0_ |= 0x00004000;
-        columnQualifier_ = value;
+        encodedColumnQualifier_ = value;
         onChanged();
         return this;
       }
       /**
-       * <code>optional int32 columnQualifier = 15;</code>
+       * <code>optional int32 encodedColumnQualifier = 15;</code>
        */
-      public Builder clearColumnQualifier() {
+      public Builder clearEncodedColumnQualifier() {
         bitField0_ = (bitField0_ & ~0x00004000);
-        columnQualifier_ = 0;
+        encodedColumnQualifier_ = 0;
         onChanged();
         return this;
       }
@@ -3473,27 +3473,37 @@ public final class PTableProtos {
      */
     com.google.protobuf.ByteString getStorageScheme();
 
-    // repeated .EncodedCQCounter encodedCQCounters = 35;
+    // optional bytes encodingScheme = 35;
     /**
-     * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+     * <code>optional bytes encodingScheme = 35;</code>
+     */
+    boolean hasEncodingScheme();
+    /**
+     * <code>optional bytes encodingScheme = 35;</code>
+     */
+    com.google.protobuf.ByteString getEncodingScheme();
+
+    // repeated .EncodedCQCounter encodedCQCounters = 36;
+    /**
+     * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
      */
     java.util.List<org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter> 
         getEncodedCQCountersList();
     /**
-     * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+     * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
      */
     org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter getEncodedCQCounters(int index);
     /**
-     * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+     * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
      */
     int getEncodedCQCountersCount();
     /**
-     * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+     * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
      */
     java.util.List<? extends org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounterOrBuilder> 
         getEncodedCQCountersOrBuilderList();
     /**
-     * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+     * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
      */
     org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounterOrBuilder getEncodedCQCountersOrBuilder(
         int index);
@@ -3731,9 +3741,14 @@ public final class PTableProtos {
               break;
             }
             case 282: {
-              if (!((mutable_bitField1_ & 0x00000002) == 0x00000002)) {
+              bitField0_ |= 0x40000000;
+              encodingScheme_ = input.readBytes();
+              break;
+            }
+            case 290: {
+              if (!((mutable_bitField1_ & 0x00000004) == 0x00000004)) {
                 encodedCQCounters_ = new java.util.ArrayList<org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter>();
-                mutable_bitField1_ |= 0x00000002;
+                mutable_bitField1_ |= 0x00000004;
               }
               encodedCQCounters_.add(input.readMessage(org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.PARSER, extensionRegistry));
               break;
@@ -3755,7 +3770,7 @@ public final class PTableProtos {
         if (((mutable_bitField0_ & 0x00020000) == 0x00020000)) {
           physicalNames_ = java.util.Collections.unmodifiableList(physicalNames_);
         }
-        if (((mutable_bitField1_ & 0x00000002) == 0x00000002)) {
+        if (((mutable_bitField1_ & 0x00000004) == 0x00000004)) {
           encodedCQCounters_ = java.util.Collections.unmodifiableList(encodedCQCounters_);
         }
         this.unknownFields = unknownFields.build();
@@ -4433,36 +4448,52 @@ public final class PTableProtos {
       return storageScheme_;
     }
 
-    // repeated .EncodedCQCounter encodedCQCounters = 35;
-    public static final int ENCODEDCQCOUNTERS_FIELD_NUMBER = 35;
+    // optional bytes encodingScheme = 35;
+    public static final int ENCODINGSCHEME_FIELD_NUMBER = 35;
+    private com.google.protobuf.ByteString encodingScheme_;
+    /**
+     * <code>optional bytes encodingScheme = 35;</code>
+     */
+    public boolean hasEncodingScheme() {
+      return ((bitField0_ & 0x40000000) == 0x40000000);
+    }
+    /**
+     * <code>optional bytes encodingScheme = 35;</code>
+     */
+    public com.google.protobuf.ByteString getEncodingScheme() {
+      return encodingScheme_;
+    }
+
+    // repeated .EncodedCQCounter encodedCQCounters = 36;
+    public static final int ENCODEDCQCOUNTERS_FIELD_NUMBER = 36;
     private java.util.List<org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter> encodedCQCounters_;
     /**
-     * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+     * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
      */
     public java.util.List<org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter> getEncodedCQCountersList() {
       return encodedCQCounters_;
     }
     /**
-     * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+     * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
      */
     public java.util.List<? extends org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounterOrBuilder> 
         getEncodedCQCountersOrBuilderList() {
       return encodedCQCounters_;
     }
     /**
-     * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+     * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
      */
     public int getEncodedCQCountersCount() {
       return encodedCQCounters_.size();
     }
     /**
-     * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+     * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
      */
     public org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter getEncodedCQCounters(int index) {
       return encodedCQCounters_.get(index);
     }
     /**
-     * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+     * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
      */
     public org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounterOrBuilder getEncodedCQCountersOrBuilder(
         int index) {
@@ -4503,6 +4534,7 @@ public final class PTableProtos {
       isAppendOnlySchema_ = false;
       parentNameBytes_ = com.google.protobuf.ByteString.EMPTY;
       storageScheme_ = com.google.protobuf.ByteString.EMPTY;
+      encodingScheme_ = com.google.protobuf.ByteString.EMPTY;
       encodedCQCounters_ = java.util.Collections.emptyList();
     }
     private byte memoizedIsInitialized = -1;
@@ -4670,8 +4702,11 @@ public final class PTableProtos {
       if (((bitField0_ & 0x20000000) == 0x20000000)) {
         output.writeBytes(34, storageScheme_);
       }
+      if (((bitField0_ & 0x40000000) == 0x40000000)) {
+        output.writeBytes(35, encodingScheme_);
+      }
       for (int i = 0; i < encodedCQCounters_.size(); i++) {
-        output.writeMessage(35, encodedCQCounters_.get(i));
+        output.writeMessage(36, encodedCQCounters_.get(i));
       }
       getUnknownFields().writeTo(output);
     }
@@ -4819,9 +4854,13 @@ public final class PTableProtos {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(34, storageScheme_);
       }
+      if (((bitField0_ & 0x40000000) == 0x40000000)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(35, encodingScheme_);
+      }
       for (int i = 0; i < encodedCQCounters_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
-          .computeMessageSize(35, encodedCQCounters_.get(i));
+          .computeMessageSize(36, encodedCQCounters_.get(i));
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -5002,6 +5041,11 @@ public final class PTableProtos {
         result = result && getStorageScheme()
             .equals(other.getStorageScheme());
       }
+      result = result && (hasEncodingScheme() == other.hasEncodingScheme());
+      if (hasEncodingScheme()) {
+        result = result && getEncodingScheme()
+            .equals(other.getEncodingScheme());
+      }
       result = result && getEncodedCQCountersList()
           .equals(other.getEncodedCQCountersList());
       result = result &&
@@ -5148,6 +5192,10 @@ public final class PTableProtos {
       if (hasStorageScheme()) {
         hash = (37 * hash) + STORAGESCHEME_FIELD_NUMBER;
         hash = (53 * hash) + getStorageScheme().hashCode();
+      }
+      if (hasEncodingScheme()) {
+        hash = (37 * hash) + ENCODINGSCHEME_FIELD_NUMBER;
+        hash = (53 * hash) + getEncodingScheme().hashCode();
       }
       if (getEncodedCQCountersCount() > 0) {
         hash = (37 * hash) + ENCODEDCQCOUNTERS_FIELD_NUMBER;
@@ -5339,9 +5387,11 @@ public final class PTableProtos {
         bitField0_ = (bitField0_ & ~0x80000000);
         storageScheme_ = com.google.protobuf.ByteString.EMPTY;
         bitField1_ = (bitField1_ & ~0x00000001);
+        encodingScheme_ = com.google.protobuf.ByteString.EMPTY;
+        bitField1_ = (bitField1_ & ~0x00000002);
         if (encodedCQCountersBuilder_ == null) {
           encodedCQCounters_ = java.util.Collections.emptyList();
-          bitField1_ = (bitField1_ & ~0x00000002);
+          bitField1_ = (bitField1_ & ~0x00000004);
         } else {
           encodedCQCountersBuilder_.clear();
         }
@@ -5517,10 +5567,14 @@ public final class PTableProtos {
           to_bitField0_ |= 0x20000000;
         }
         result.storageScheme_ = storageScheme_;
+        if (((from_bitField1_ & 0x00000002) == 0x00000002)) {
+          to_bitField0_ |= 0x40000000;
+        }
+        result.encodingScheme_ = encodingScheme_;
         if (encodedCQCountersBuilder_ == null) {
-          if (((bitField1_ & 0x00000002) == 0x00000002)) {
+          if (((bitField1_ & 0x00000004) == 0x00000004)) {
             encodedCQCounters_ = java.util.Collections.unmodifiableList(encodedCQCounters_);
-            bitField1_ = (bitField1_ & ~0x00000002);
+            bitField1_ = (bitField1_ & ~0x00000004);
           }
           result.encodedCQCounters_ = encodedCQCounters_;
         } else {
@@ -5698,11 +5752,14 @@ public final class PTableProtos {
         if (other.hasStorageScheme()) {
           setStorageScheme(other.getStorageScheme());
         }
+        if (other.hasEncodingScheme()) {
+          setEncodingScheme(other.getEncodingScheme());
+        }
         if (encodedCQCountersBuilder_ == null) {
           if (!other.encodedCQCounters_.isEmpty()) {
             if (encodedCQCounters_.isEmpty()) {
               encodedCQCounters_ = other.encodedCQCounters_;
-              bitField1_ = (bitField1_ & ~0x00000002);
+              bitField1_ = (bitField1_ & ~0x00000004);
             } else {
               ensureEncodedCQCountersIsMutable();
               encodedCQCounters_.addAll(other.encodedCQCounters_);
@@ -5715,7 +5772,7 @@ public final class PTableProtos {
               encodedCQCountersBuilder_.dispose();
               encodedCQCountersBuilder_ = null;
               encodedCQCounters_ = other.encodedCQCounters_;
-              bitField1_ = (bitField1_ & ~0x00000002);
+              bitField1_ = (bitField1_ & ~0x00000004);
               encodedCQCountersBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
                    getEncodedCQCountersFieldBuilder() : null;
@@ -7494,13 +7551,49 @@ public final class PTableProtos {
         return this;
       }
 
-      // repeated .EncodedCQCounter encodedCQCounters = 35;
+      // optional bytes encodingScheme = 35;
+      private com.google.protobuf.ByteString encodingScheme_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes encodingScheme = 35;</code>
+       */
+      public boolean hasEncodingScheme() {
+        return ((bitField1_ & 0x00000002) == 0x00000002);
+      }
+      /**
+       * <code>optional bytes encodingScheme = 35;</code>
+       */
+      public com.google.protobuf.ByteString getEncodingScheme() {
+        return encodingScheme_;
+      }
+      /**
+       * <code>optional bytes encodingScheme = 35;</code>
+       */
+      public Builder setEncodingScheme(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField1_ |= 0x00000002;
+        encodingScheme_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes encodingScheme = 35;</code>
+       */
+      public Builder clearEncodingScheme() {
+        bitField1_ = (bitField1_ & ~0x00000002);
+        encodingScheme_ = getDefaultInstance().getEncodingScheme();
+        onChanged();
+        return this;
+      }
+
+      // repeated .EncodedCQCounter encodedCQCounters = 36;
       private java.util.List<org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter> encodedCQCounters_ =
         java.util.Collections.emptyList();
       private void ensureEncodedCQCountersIsMutable() {
-        if (!((bitField1_ & 0x00000002) == 0x00000002)) {
+        if (!((bitField1_ & 0x00000004) == 0x00000004)) {
           encodedCQCounters_ = new java.util.ArrayList<org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter>(encodedCQCounters_);
-          bitField1_ |= 0x00000002;
+          bitField1_ |= 0x00000004;
          }
       }
 
@@ -7508,7 +7601,7 @@ public final class PTableProtos {
           org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter, org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.Builder, org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounterOrBuilder> encodedCQCountersBuilder_;
 
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public java.util.List<org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter> getEncodedCQCountersList() {
         if (encodedCQCountersBuilder_ == null) {
@@ -7518,7 +7611,7 @@ public final class PTableProtos {
         }
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public int getEncodedCQCountersCount() {
         if (encodedCQCountersBuilder_ == null) {
@@ -7528,7 +7621,7 @@ public final class PTableProtos {
         }
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter getEncodedCQCounters(int index) {
         if (encodedCQCountersBuilder_ == null) {
@@ -7538,7 +7631,7 @@ public final class PTableProtos {
         }
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public Builder setEncodedCQCounters(
           int index, org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter value) {
@@ -7555,7 +7648,7 @@ public final class PTableProtos {
         return this;
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public Builder setEncodedCQCounters(
           int index, org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.Builder builderForValue) {
@@ -7569,7 +7662,7 @@ public final class PTableProtos {
         return this;
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public Builder addEncodedCQCounters(org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter value) {
         if (encodedCQCountersBuilder_ == null) {
@@ -7585,7 +7678,7 @@ public final class PTableProtos {
         return this;
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public Builder addEncodedCQCounters(
           int index, org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter value) {
@@ -7602,7 +7695,7 @@ public final class PTableProtos {
         return this;
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public Builder addEncodedCQCounters(
           org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.Builder builderForValue) {
@@ -7616,7 +7709,7 @@ public final class PTableProtos {
         return this;
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public Builder addEncodedCQCounters(
           int index, org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.Builder builderForValue) {
@@ -7630,7 +7723,7 @@ public final class PTableProtos {
         return this;
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public Builder addAllEncodedCQCounters(
           java.lang.Iterable<? extends org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter> values) {
@@ -7644,12 +7737,12 @@ public final class PTableProtos {
         return this;
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public Builder clearEncodedCQCounters() {
         if (encodedCQCountersBuilder_ == null) {
           encodedCQCounters_ = java.util.Collections.emptyList();
-          bitField1_ = (bitField1_ & ~0x00000002);
+          bitField1_ = (bitField1_ & ~0x00000004);
           onChanged();
         } else {
           encodedCQCountersBuilder_.clear();
@@ -7657,7 +7750,7 @@ public final class PTableProtos {
         return this;
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public Builder removeEncodedCQCounters(int index) {
         if (encodedCQCountersBuilder_ == null) {
@@ -7670,14 +7763,14 @@ public final class PTableProtos {
         return this;
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.Builder getEncodedCQCountersBuilder(
           int index) {
         return getEncodedCQCountersFieldBuilder().getBuilder(index);
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounterOrBuilder getEncodedCQCountersOrBuilder(
           int index) {
@@ -7687,7 +7780,7 @@ public final class PTableProtos {
         }
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public java.util.List<? extends org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounterOrBuilder> 
            getEncodedCQCountersOrBuilderList() {
@@ -7698,14 +7791,14 @@ public final class PTableProtos {
         }
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.Builder addEncodedCQCountersBuilder() {
         return getEncodedCQCountersFieldBuilder().addBuilder(
             org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.getDefaultInstance());
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.Builder addEncodedCQCountersBuilder(
           int index) {
@@ -7713,7 +7806,7 @@ public final class PTableProtos {
             index, org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.getDefaultInstance());
       }
       /**
-       * <code>repeated .EncodedCQCounter encodedCQCounters = 35;</code>
+       * <code>repeated .EncodedCQCounter encodedCQCounters = 36;</code>
        */
       public java.util.List<org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.Builder> 
            getEncodedCQCountersBuilderList() {
@@ -7726,7 +7819,7 @@ public final class PTableProtos {
           encodedCQCountersBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
               org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter, org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter.Builder, org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounterOrBuilder>(
                   encodedCQCounters_,
-                  ((bitField1_ & 0x00000002) == 0x00000002),
+                  ((bitField1_ & 0x00000004) == 0x00000004),
                   getParentForChildren(),
                   isClean());
           encodedCQCounters_ = null;
@@ -8389,7 +8482,7 @@ public final class PTableProtos {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\014PTable.proto\032\021PGuidePosts.proto\"\277\002\n\007PC" +
+      "\n\014PTable.proto\032\021PGuidePosts.proto\"\306\002\n\007PC" +
       "olumn\022\027\n\017columnNameBytes\030\001 \002(\014\022\027\n\017family" +
       "NameBytes\030\002 \001(\014\022\020\n\010dataType\030\003 \002(\t\022\021\n\tmax" +
       "Length\030\004 \001(\005\022\r\n\005scale\030\005 \001(\005\022\020\n\010nullable\030" +
@@ -8397,37 +8490,38 @@ public final class PTableProtos {
       "(\005\022\021\n\tarraySize\030\t \001(\005\022\024\n\014viewConstant\030\n " +
       "\001(\014\022\026\n\016viewReferenced\030\013 \001(\010\022\022\n\nexpressio" +
       "n\030\014 \001(\t\022\026\n\016isRowTimestamp\030\r \001(\010\022\021\n\tisDyn" +
-      "amic\030\016 \001(\010\022\027\n\017columnQualifier\030\017 \001(\005\"\232\001\n\013" +
-      "PTableStats\022\013\n\003key\030\001 \002(\014\022\016\n\006values\030\002 \003(\014",
-      "\022\033\n\023guidePostsByteCount\030\003 \001(\003\022\025\n\rkeyByte" +
-      "sCount\030\004 \001(\003\022\027\n\017guidePostsCount\030\005 \001(\005\022!\n" +
-      "\013pGuidePosts\030\006 \001(\0132\014.PGuidePosts\"\324\006\n\006PTa" +
-      "ble\022\027\n\017schemaNameBytes\030\001 \002(\014\022\026\n\016tableNam" +
-      "eBytes\030\002 \002(\014\022\036\n\ttableType\030\003 \002(\0162\013.PTable" +
-      "Type\022\022\n\nindexState\030\004 \001(\t\022\026\n\016sequenceNumb" +
-      "er\030\005 \002(\003\022\021\n\ttimeStamp\030\006 \002(\003\022\023\n\013pkNameByt" +
-      "es\030\007 \001(\014\022\021\n\tbucketNum\030\010 \002(\005\022\031\n\007columns\030\t" +
-      " \003(\0132\010.PColumn\022\030\n\007indexes\030\n \003(\0132\007.PTable" +
-      "\022\027\n\017isImmutableRows\030\013 \002(\010\022\032\n\022dataTableNa",
-      "meBytes\030\r \001(\014\022\031\n\021defaultFamilyName\030\016 \001(\014" +
-      "\022\022\n\ndisableWAL\030\017 \002(\010\022\023\n\013multiTenant\030\020 \002(" +
-      "\010\022\020\n\010viewType\030\021 \001(\014\022\025\n\rviewStatement\030\022 \001" +
-      "(\014\022\025\n\rphysicalNames\030\023 \003(\014\022\020\n\010tenantId\030\024 " +
-      "\001(\014\022\023\n\013viewIndexId\030\025 \001(\005\022\021\n\tindexType\030\026 " +
-      "\001(\014\022\026\n\016statsTimeStamp\030\027 \001(\003\022\022\n\nstoreNull" +
-      "s\030\030 \001(\010\022\027\n\017baseColumnCount\030\031 \001(\005\022\036\n\026rowK" +
-      "eyOrderOptimizable\030\032 \001(\010\022\025\n\rtransactiona" +
-      "l\030\033 \001(\010\022\034\n\024updateCacheFrequency\030\034 \001(\003\022\035\n" +
-      "\025indexDisableTimestamp\030\035 \001(\003\022\031\n\021isNamesp",
-      "aceMapped\030\036 \001(\010\022\034\n\024autoParititonSeqName\030" +
-      "\037 \001(\t\022\032\n\022isAppendOnlySchema\030  \001(\010\022\027\n\017par" +
-      "entNameBytes\030! \001(\014\022\025\n\rstorageScheme\030\" \001(" +
-      "\014\022,\n\021encodedCQCounters\030# \003(\0132\021.EncodedCQ" +
-      "Counter\"6\n\020EncodedCQCounter\022\021\n\tcolFamily" +
-      "\030\001 \002(\t\022\017\n\007counter\030\002 \002(\005*A\n\nPTableType\022\n\n" +
-      "\006SYSTEM\020\000\022\010\n\004USER\020\001\022\010\n\004VIEW\020\002\022\t\n\005INDEX\020\003" +
-      "\022\010\n\004JOIN\020\004B@\n(org.apache.phoenix.coproce" +
-      "ssor.generatedB\014PTableProtosH\001\210\001\001\240\001\001"
+      "amic\030\016 \001(\010\022\036\n\026encodedColumnQualifier\030\017 \001" +
+      "(\005\"\232\001\n\013PTableStats\022\013\n\003key\030\001 \002(\014\022\016\n\006value",
+      "s\030\002 \003(\014\022\033\n\023guidePostsByteCount\030\003 \001(\003\022\025\n\r" +
+      "keyBytesCount\030\004 \001(\003\022\027\n\017guidePostsCount\030\005" +
+      " \001(\005\022!\n\013pGuidePosts\030\006 \001(\0132\014.PGuidePosts\"" +
+      "\354\006\n\006PTable\022\027\n\017schemaNameBytes\030\001 \002(\014\022\026\n\016t" +
+      "ableNameBytes\030\002 \002(\014\022\036\n\ttableType\030\003 \002(\0162\013" +
+      ".PTableType\022\022\n\nindexState\030\004 \001(\t\022\026\n\016seque" +
+      "nceNumber\030\005 \002(\003\022\021\n\ttimeStamp\030\006 \002(\003\022\023\n\013pk" +
+      "NameBytes\030\007 \001(\014\022\021\n\tbucketNum\030\010 \002(\005\022\031\n\007co" +
+      "lumns\030\t \003(\0132\010.PColumn\022\030\n\007indexes\030\n \003(\0132\007" +
+      ".PTable\022\027\n\017isImmutableRows\030\013 \002(\010\022\032\n\022data",
+      "TableNameBytes\030\r \001(\014\022\031\n\021defaultFamilyNam" +
+      "e\030\016 \001(\014\022\022\n\ndisableWAL\030\017 \002(\010\022\023\n\013multiTena" +
+      "nt\030\020 \002(\010\022\020\n\010viewType\030\021 \001(\014\022\025\n\rviewStatem" +
+      "ent\030\022 \001(\014\022\025\n\rphysicalNames\030\023 \003(\014\022\020\n\010tena" +
+      "ntId\030\024 \001(\014\022\023\n\013viewIndexId\030\025 \001(\005\022\021\n\tindex" +
+      "Type\030\026 \001(\014\022\026\n\016statsTimeStamp\030\027 \001(\003\022\022\n\nst" +
+      "oreNulls\030\030 \001(\010\022\027\n\017baseColumnCount\030\031 \001(\005\022" +
+      "\036\n\026rowKeyOrderOptimizable\030\032 \001(\010\022\025\n\rtrans" +
+      "actional\030\033 \001(\010\022\034\n\024updateCacheFrequency\030\034" +
+      " \001(\003\022\035\n\025indexDisableTimestamp\030\035 \001(\003\022\031\n\021i",
+      "sNamespaceMapped\030\036 \001(\010\022\034\n\024autoParititonS" +
+      "eqName\030\037 \001(\t\022\032\n\022isAppendOnlySchema\030  \001(\010" +
+      "\022\027\n\017parentNameBytes\030! \001(\014\022\025\n\rstorageSche" +
+      "me\030\" \001(\014\022\026\n\016encodingScheme\030# \001(\014\022,\n\021enco" +
+      "dedCQCounters\030$ \003(\0132\021.EncodedCQCounter\"6" +
+      "\n\020EncodedCQCounter\022\021\n\tcolFamily\030\001 \002(\t\022\017\n" +
+      "\007counter\030\002 \002(\005*A\n\nPTableType\022\n\n\006SYSTEM\020\000" +
+      "\022\010\n\004USER\020\001\022\010\n\004VIEW\020\002\022\t\n\005INDEX\020\003\022\010\n\004JOIN\020" +
+      "\004B@\n(org.apache.phoenix.coprocessor.gene" +
+      "ratedB\014PTableProtosH\001\210\001\001\240\001\001"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -8439,7 +8533,7 @@ public final class PTableProtos {
           internal_static_PColumn_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_PColumn_descriptor,
-              new java.lang.String[] { "ColumnNameBytes", "FamilyNameBytes", "DataType", "MaxLength", "Scale", "Nullable", "Position", "SortOrder", "ArraySize", "ViewConstant", "ViewReferenced", "Expression", "IsRowTimestamp", "IsDynamic", "ColumnQualifier", });
+              new java.lang.String[] { "ColumnNameBytes", "FamilyNameBytes", "DataType", "MaxLength", "Scale", "Nullable", "Position", "SortOrder", "ArraySize", "ViewConstant", "ViewReferenced", "Expression", "IsRowTimestamp", "IsDynamic", "EncodedColumnQualifier", });
           internal_static_PTableStats_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_PTableStats_fieldAccessorTable = new
@@ -8451,7 +8545,7 @@ public final class PTableProtos {
           internal_static_PTable_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_PTable_descriptor,
-              new java.lang.String[] { "SchemaNameBytes", "TableNameBytes", "TableType", "IndexState", "SequenceNumber", "TimeStamp", "PkNameBytes", "BucketNum", "Columns", "Indexes", "IsImmutableRows", "DataTableNameBytes", "DefaultFamilyName", "DisableWAL", "MultiTenant", "ViewType", "ViewStatement", "PhysicalNames", "TenantId", "ViewIndexId", "IndexType", "StatsTimeStamp", "StoreNulls", "BaseColumnCount", "RowKeyOrderOptimizable", "Transactional", "UpdateCacheFrequency", "IndexDisableTimestamp", "IsNamespaceMapped", "AutoParititonSeqName", "IsAppendOnlySchema", "ParentNameBytes", "StorageScheme", "EncodedCQCounters", });
+              new java.lang.String[] { "SchemaNameBytes", "TableNameBytes", "TableType", "IndexState", "SequenceNumber", "TimeStamp", "PkNameBytes", "BucketNum", "Columns", "Indexes", "IsImmutableRows", "DataTableNameBytes", "DefaultFamilyName", "DisableWAL", "MultiTenant", "ViewType", "ViewStatement", "PhysicalNames", "TenantId", "ViewIndexId", "IndexType", "StatsTimeStamp", "StoreNulls", "BaseColumnCount", "RowKeyOrderOptimizable", "Transactional", "UpdateCacheFrequency", "IndexDisableTimestamp", "IsNamespaceMapped", "AutoParititonSeqName", "IsAppendOnlySchema", "ParentNameBytes", "StorageScheme", "EncodingScheme", "EncodedCQCounters", });
           internal_static_EncodedCQCounter_descriptor =
             getDescriptor().getMessageTypes().get(3);
           internal_static_EncodedCQCounter_fieldAccessorTable = new

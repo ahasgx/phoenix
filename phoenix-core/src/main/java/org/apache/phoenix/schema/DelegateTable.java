@@ -305,4 +305,9 @@ public class DelegateTable implements PTable {
     public EncodedCQCounter getEncodedCQCounter() {
         return delegate.getEncodedCQCounter();
     }
+
+    @Override
+    public QualifierEncodingScheme getEncodingScheme() {
+        return delegate.getEncodingScheme();
+    }
 }

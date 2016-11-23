@@ -259,8 +259,8 @@ public class PColumnImpl implements PColumn {
         	isDynamic = column.getIsDynamic();
         }
         Integer columnQualifier = null;
-        if (column.hasColumnQualifier()) {
-            columnQualifier = column.getColumnQualifier();
+        if (column.hasEncodedColumnQualifier()) {
+            columnQualifier = column.getEncodedColumnQualifier();
         }
         return new PColumnImpl(columnName, familyName, dataType, maxLength, scale, nullable, position, sortOrder,
                 arraySize, viewConstant, isViewReferenced, expressionStr, isRowTimestamp, isDynamic, columnQualifier);
@@ -295,7 +295,7 @@ public class PColumnImpl implements PColumn {
         }
         builder.setIsRowTimestamp(column.isRowTimestamp());
         if (column.getEncodedColumnQualifier() != null) {
-            builder.setColumnQualifier(column.getEncodedColumnQualifier());
+            builder.setEncodedColumnQualifier(column.getEncodedColumnQualifier());
         }
         return builder.build();
     }

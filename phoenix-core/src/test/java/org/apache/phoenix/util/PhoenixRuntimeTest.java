@@ -26,6 +26,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -37,6 +39,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
 import org.apache.phoenix.compile.QueryPlan;
 import org.apache.phoenix.expression.Expression;
@@ -342,5 +345,12 @@ public class PhoenixRuntimeTest extends BaseConnectionlessQueryTest {
         long skewedTs = ts + QueryConstants.MILLIS_IN_DAY; // skew of a day
         // Even with a day of skew, we won't consider the ts a nanos timestamp
         assertEquals(skewedTs, PhoenixRuntime.getWallClockTimeFromCellTimeStamp(skewedTs));
-    }    
+    }
+    
+    public static void main(String args[]) throws Exception {
+        byte[] bytes = Bytes.toBytes(4294967295l);
+        long value = ByteBuffer.wrap(bytes)
+                .order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xFFFFFFFFL;
+        System.out.print(value);
+    }
 }
