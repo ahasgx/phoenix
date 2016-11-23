@@ -279,7 +279,7 @@ public abstract class BaseResultIterators extends ExplainTable implements Result
         }
         Map<byte[], NavigableSet<byte[]>> familyMap = scan.getFamilyMap();
 
-        Map<String, Pair<Integer, Integer>> qualifierRanges = SchemaUtil.getQualifierRanges(table);
+        Map<String, Pair<Integer, Integer>> qualifierRanges = EncodedColumnsUtil.getQualifierRanges(table);
         for (Entry<byte[], NavigableSet<byte[]>> entry : familyMap.entrySet()) {
             if (entry.getValue() != null) {
                 for (byte[] cq : entry.getValue()) {

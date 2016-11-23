@@ -1414,6 +1414,9 @@ public class PTableImpl implements PTable {
               builder.addEncodedCQCounters(cqBuilder.build());
           }
       }
+      if (table.getEncodingScheme() != null) {
+          builder.setEncodingScheme(ByteStringer.wrap(new byte[]{table.getEncodingScheme().getSerializedMetadataValue()}));
+      }
       return builder.build();
     }
 

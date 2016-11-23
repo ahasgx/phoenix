@@ -2064,6 +2064,7 @@ public class MetaDataClient {
                  * then we rely on the PTable, with appropriate storage scheme, returned in the MetadataMutationResult to be updated 
                  * in the client cache. If the phoenix table already doesn't exist then the non-encoded column qualifier scheme works
                  * because we cannot control the column qualifiers that were used when populating the hbase table.
+                 * TODO: samarth add a test case for this
                  */
                 if (parent != null) {
                     storageScheme = parent.getStorageScheme();

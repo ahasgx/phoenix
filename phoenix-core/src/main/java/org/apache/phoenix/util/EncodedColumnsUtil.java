@@ -18,6 +18,9 @@
 package org.apache.phoenix.util;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.phoenix.schema.PTable.QualifierEncodingScheme.NON_ENCODED_QUALIFIERS;
+
+import java.util.Map;
 
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -28,6 +31,9 @@ import org.apache.phoenix.schema.PColumn;
 import org.apache.phoenix.schema.PTable;
 import org.apache.phoenix.schema.PTable.QualifierEncodingScheme;
 import org.apache.phoenix.schema.PTable.StorageScheme;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 public class EncodedColumnsUtil {
 
@@ -135,6 +141,31 @@ public class EncodedColumnsUtil {
 
     public static boolean useQualifierAsIndex(Pair<Integer, Integer> minMaxQualifiers) {
         return minMaxQualifiers != null;
+    }
+
+    public static Map<String, Pair<Integer, Integer>> getQualifierRanges(PTable table) {
+        Preconditions.checkArgument(table.getEncodingScheme() != NON_ENCODED_QUALIFIERS,
+            "Use this method only for tables with encoding scheme "
+                    + NON_ENCODED_QUALIFIERS);
+        Map<String, Pair<Integer, Integer>> toReturn = Maps.newHashMapWithExpectedSize(table.getColumns().size());
+        for (PColumn column : table.getColumns()) {
+            if (!SchemaUtil.isPKColumn(column)) {
+                String colFamily = column.getFamilyName().getString();
+                Pair<Integer, Integer> minMaxQualifiers = toReturn.get(colFamily);
+                Integer encodedColumnQualifier = column.getEncodedColumnQualifier();
+                if (minMaxQualifiers == null) {
+                    minMaxQualifiers = new Pair<>(encodedColumnQualifier, encodedColumnQualifier);
+                    toReturn.put(colFamily, minMaxQualifiers);
+                } else {
+                    if (encodedColumnQualifier < minMaxQualifiers.getFirst()) {
+                        minMaxQualifiers.setFirst(encodedColumnQualifier);
+                    } else if (encodedColumnQualifier > minMaxQualifiers.getSecond()) {
+                        minMaxQualifiers.setSecond(encodedColumnQualifier);
+                    }
+                }
+            }
+        }
+        return toReturn;
     }
     
 }

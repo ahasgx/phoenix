@@ -213,6 +213,11 @@ public interface PTable extends PMetaDataEntity {
             public boolean isEncodeable(String value) {
                 return true;
             }
+            
+            @Override
+            public String toString() {
+                return "NON_ENCODED_QUALIFIERS";
+            }
         };
         public static final QualifierEncodingScheme ONE_BYTE_QUALIFIERS = new QualifierEncodingScheme<Long>((byte)1, "ONE_BYTE_QUALIFIERS", 255l) {
             @Override
@@ -233,6 +238,11 @@ public interface PTable extends PMetaDataEntity {
             @Override
             public boolean isEncodeable(Long value) {
                 return true;
+            }
+            
+            @Override
+            public String toString() {
+                return "ONE_BYTE_QUALIFIERS";
             }
         };
         public static final QualifierEncodingScheme TWO_BYTE_QUALIFIERS = new QualifierEncodingScheme<Long>((byte)2, "TWO_BYTE_QUALIFIERS", 65535l) {
@@ -255,6 +265,11 @@ public interface PTable extends PMetaDataEntity {
             public boolean isEncodeable(Long value) {
                 return true;
             }
+            
+            @Override
+            public String toString() {
+                return "TWO_BYTE_QUALIFIERS";
+            }
         };
         public static final QualifierEncodingScheme THREE_BYTE_QUALIFIERS = new QualifierEncodingScheme<Long>((byte)3, "THREE_BYTE_QUALIFIERS", 16777215l) {
             @Override
@@ -275,6 +290,11 @@ public interface PTable extends PMetaDataEntity {
             @Override
             public boolean isEncodeable(Long value) {
                 return true;
+            }
+            
+            @Override
+            public String toString() {
+                return "THREE_BYTE_QUALIFIERS";
             }
         };
         public static final QualifierEncodingScheme FOUR_BYTE_QUALIFIERS = new QualifierEncodingScheme<Long>((byte)4, "FOUR_BYTE_QUALIFIERS", 4294967295l) {
@@ -297,6 +317,11 @@ public interface PTable extends PMetaDataEntity {
             public boolean isEncodeable(Long value) {
                 return true;
             }
+            
+            @Override
+            public String toString() {
+                return "FOUR_BYTE_QUALIFIERS";
+            }
         };
         public static final QualifierEncodingScheme[] schemes = {NON_ENCODED_QUALIFIERS, ONE_BYTE_QUALIFIERS, TWO_BYTE_QUALIFIERS, THREE_BYTE_QUALIFIERS, FOUR_BYTE_QUALIFIERS}; 
         private final byte[] metadataBytes;
@@ -318,7 +343,7 @@ public interface PTable extends PMetaDataEntity {
         }
 
         public static QualifierEncodingScheme fromSerializedValue(byte serializedValue) {
-            if (serializedValue < 0 || serializedValue > schemes.length - 1) {
+            if (serializedValue < 0 || serializedValue >= schemes.length) {
                 return null;
             }
             return schemes[serializedValue];
