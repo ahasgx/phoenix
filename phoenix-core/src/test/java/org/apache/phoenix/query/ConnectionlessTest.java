@@ -141,21 +141,19 @@ public class ConnectionlessTest {
         assertTrue(iterator.hasNext());
         kv = iterator.next();
         assertArrayEquals(expectedRowKey1, kv.getRow());        
-        assertEquals(QueryConstants.EMPTY_COLUMN_VALUE, PVarchar.INSTANCE.toObject(kv.getValue()));
-        kv = iterator.next();
-        assertArrayEquals(expectedRowKey1, kv.getRow());        
         assertEquals(name1, PVarchar.INSTANCE.toObject(kv.getValue()));
         assertTrue(iterator.hasNext());
         kv = iterator.next();
         assertArrayEquals(expectedRowKey1, kv.getRow());        
         assertEquals(now, PDate.INSTANCE.toObject(kv.getValue()));
+        assertTrue(iterator.hasNext());
+        kv = iterator.next();
+        assertArrayEquals(expectedRowKey1, kv.getRow());        
+        assertEquals(QueryConstants.EMPTY_COLUMN_VALUE, PVarchar.INSTANCE.toObject(kv.getValue()));
     }
 
     private static void assertRow2(Iterator<KeyValue> iterator, byte[] expectedRowKey2) {
         KeyValue kv;
-        kv = iterator.next();
-        assertArrayEquals(expectedRowKey2, kv.getRow());        
-        assertEquals(QueryConstants.EMPTY_COLUMN_VALUE, PVarchar.INSTANCE.toObject(kv.getValue()));
         assertTrue(iterator.hasNext());
         kv = iterator.next();
         assertArrayEquals(expectedRowKey2, kv.getRow());        
@@ -164,6 +162,10 @@ public class ConnectionlessTest {
         kv = iterator.next();
         assertArrayEquals(expectedRowKey2, kv.getRow());        
         assertEquals(now, PDate.INSTANCE.toObject(kv.getValue()));
+        assertTrue(iterator.hasNext());
+        kv = iterator.next();
+        assertArrayEquals(expectedRowKey2, kv.getRow());        
+        assertEquals(QueryConstants.EMPTY_COLUMN_VALUE, PVarchar.INSTANCE.toObject(kv.getValue()));
     }
     
     @Test

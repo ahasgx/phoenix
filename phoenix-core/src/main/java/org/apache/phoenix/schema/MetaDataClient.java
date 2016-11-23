@@ -2029,10 +2029,7 @@ public class MetaDataClient {
                  * We can't control what column qualifiers are used in HTable mapped to Phoenix views. So we are not
                  * able to encode column names.
                  */  
-                if (viewType == MAPPED) {
-                    storageScheme = ONE_CELL_PER_KEYVALUE_COLUMN;
-                    encodingScheme = FOUR_BYTE_QUALIFIERS;
-                } else {
+                if (viewType != MAPPED) {
                     /*
                      * For regular phoenix views, use the storage scheme of the physical table since they all share the
                      * the same HTable. Views always use the base table's column qualifier counter for doling out
@@ -2066,7 +2063,18 @@ public class MetaDataClient {
                  * because we cannot control the column qualifiers that were used when populating the hbase table.
                  * TODO: samarth add a test case for this
                  */
-                if (parent != null) {
+                
+                byte[] tableNameBytes = SchemaUtil.getTableNameAsBytes(schemaName, tableName);
+                boolean tableExists = true;
+                try {
+                    connection.getQueryServices().getTableDescriptor(tableNameBytes);
+                } catch (org.apache.phoenix.schema.TableNotFoundException e) {
+                    tableExists = false;
+                }
+                if (tableExists) {
+                    storageScheme = ONE_CELL_PER_KEYVALUE_COLUMN;
+                    encodingScheme = NON_ENCODED_QUALIFIERS;
+                } else if (parent != null) {
                     storageScheme = parent.getStorageScheme();
                     encodingScheme = parent.getEncodingScheme();
                 } else if (isImmutableRows) {
