@@ -449,7 +449,7 @@ public class PTableImpl implements PTable {
         PColumn[] allColumns;
         
         this.columnsByName = ArrayListMultimap.create(columns.size(), 1);
-        this.kvColumnsByEncodedColumnNames = (EncodedColumnsUtil.usesEncodedColumnNames(storageScheme) ? ArrayListMultimap.<Pair<String, Integer>, PColumn>create(columns.size(), 1) : null);
+        this.kvColumnsByEncodedColumnNames = (EncodedColumnsUtil.usesEncodedColumnNames(qualifierEncodingScheme) ? ArrayListMultimap.<Pair<String, Integer>, PColumn>create(columns.size(), 1) : null);
         int numPKColumns = 0;
         if (bucketNum != null) {
             // Add salt column to allColumns and pkColumns, but don't add to
@@ -558,7 +558,7 @@ public class PTableImpl implements PTable {
                 .orderedBy(Bytes.BYTES_COMPARATOR);
         for (int i = 0; i < families.length; i++) {
             Map.Entry<PName,List<PColumn>> entry = iterator.next();
-            PColumnFamily family = new PColumnFamilyImpl(entry.getKey(), entry.getValue(), EncodedColumnsUtil.usesEncodedColumnNames(storageScheme));
+            PColumnFamily family = new PColumnFamilyImpl(entry.getKey(), entry.getValue(), EncodedColumnsUtil.usesEncodedColumnNames(qualifierEncodingScheme));
             families[i] = family;
             familyByString.put(family.getName().getString(), family);
             familyByBytes.put(family.getName().getBytes(), family);
@@ -884,7 +884,7 @@ public class PTableImpl implements PTable {
                 mutations.add(deleteRow);
             } else {
                 // store all columns for a given column family in a single cell instead of one column per cell in order to improve write performance
-                if (storageScheme == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL) {
+                if (storageScheme == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY) {
                     Put put = new Put(this.key);
                     if (isWALDisabled()) {
                         put.setDurability(Durability.SKIP_WAL);
@@ -990,7 +990,7 @@ public class PTableImpl implements PTable {
                 removeIfPresent(unsetValues, family, qualifier);
              // store all columns for a given column family in a single cell instead of one column per cell in order to improve write performance
                 // we don't need to do anything with unsetValues as it is only used when storeNulls is false, storeNulls is always true when storeColsInSingleCell is true
-                if (storageScheme == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL) {
+                if (storageScheme == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY) {
                     columnToValueMap.put(column, ptr.get());
                 }
                 else {
@@ -1297,11 +1297,11 @@ public class PTableImpl implements PTable {
         if (table.hasStorageScheme()) {
             storageScheme = StorageScheme.fromSerializedValue(table.getStorageScheme().toByteArray()[0]);
         }
-        QualifierEncodingScheme qualifierEncodingScheme= null;
+        QualifierEncodingScheme qualifierEncodingScheme = null;
         if (table.hasEncodingScheme()) {
             qualifierEncodingScheme = QualifierEncodingScheme.fromSerializedValue(table.getEncodingScheme().toByteArray()[0]);
         }
-        EncodedCQCounter encodedColumnQualifierCounter = EncodedColumnsUtil.usesEncodedColumnNames(storageScheme) ? new EncodedCQCounter() : EncodedCQCounter.NULL_COUNTER;
+        EncodedCQCounter encodedColumnQualifierCounter = EncodedColumnsUtil.usesEncodedColumnNames(qualifierEncodingScheme) ? new EncodedCQCounter() : EncodedCQCounter.NULL_COUNTER;
         if (table.getEncodedCQCountersList() != null) {
             encodedColumnQualifierCounter = new EncodedCQCounter();
             for (org.apache.phoenix.coprocessor.generated.PTableProtos.EncodedCQCounter cqCounterFromProto : table.getEncodedCQCountersList()) {

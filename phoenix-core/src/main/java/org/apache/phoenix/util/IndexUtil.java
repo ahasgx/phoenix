@@ -496,9 +496,8 @@ public class IndexUtil {
             byte[] dataRowKey = indexMaintainer.buildDataRowKey(ptr, viewConstants);
             Get get = new Get(dataRowKey);
             StorageScheme storageScheme = indexMaintainer.getIndexStorageScheme();
-            boolean colsStoredInSingleCell = storageScheme == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL;
             for (int i = 0; i < dataColumns.length; i++) {
-                if (colsStoredInSingleCell) {
+                if (storageScheme == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY) {
                     get.addFamily(dataColumns[i].getFamily());
                 } else {
                     get.addColumn(dataColumns[i].getFamily(), dataColumns[i].getQualifier());

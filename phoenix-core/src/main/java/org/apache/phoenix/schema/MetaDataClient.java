@@ -93,6 +93,10 @@ import static org.apache.phoenix.query.QueryServices.DROP_METADATA_ATTRIB;
 import static org.apache.phoenix.query.QueryServicesOptions.DEFAULT_DROP_METADATA;
 import static org.apache.phoenix.query.QueryServicesOptions.DEFAULT_RUN_UPDATE_STATS_ASYNC;
 import static org.apache.phoenix.schema.PTable.EncodedCQCounter.NULL_COUNTER;
+import static org.apache.phoenix.schema.PTable.QualifierEncodingScheme.FOUR_BYTE_QUALIFIERS;
+import static org.apache.phoenix.schema.PTable.QualifierEncodingScheme.NON_ENCODED_QUALIFIERS;
+import static org.apache.phoenix.schema.PTable.StorageScheme.ONE_CELL_PER_COLUMN_FAMILY;
+import static org.apache.phoenix.schema.PTable.StorageScheme.ONE_CELL_PER_KEYVALUE_COLUMN;
 import static org.apache.phoenix.schema.PTable.ViewType.MAPPED;
 import static org.apache.phoenix.schema.PTableType.TABLE;
 import static org.apache.phoenix.schema.PTableType.VIEW;
@@ -2016,19 +2020,18 @@ public class MetaDataClient {
             }
             int pkPositionOffset = pkColumns.size();
             int position = positionOffset;
-            StorageScheme storageScheme = StorageScheme.NON_ENCODED_COLUMN_NAMES;
+            StorageScheme storageScheme = ONE_CELL_PER_KEYVALUE_COLUMN;
+            QualifierEncodingScheme encodingScheme = NON_ENCODED_QUALIFIERS;
             EncodedCQCounter cqCounter = NULL_COUNTER;
             PTable viewPhysicalTable = null;
-            if (SchemaUtil.isSystemTable(Bytes.toBytes(SchemaUtil.getTableName(schemaName, tableName)))) {
-                // System tables have hard-coded column qualifiers. So we can't use column encoding for them.
-                storageScheme = StorageScheme.NON_ENCODED_COLUMN_NAMES;
-            } else if (tableType == PTableType.VIEW) {
+            if (tableType == PTableType.VIEW) {
                 /*
                  * We can't control what column qualifiers are used in HTable mapped to Phoenix views. So we are not
                  * able to encode column names.
                  */  
                 if (viewType == MAPPED) {
-                    storageScheme = StorageScheme.NON_ENCODED_COLUMN_NAMES;
+                    storageScheme = ONE_CELL_PER_KEYVALUE_COLUMN;
+                    encodingScheme = FOUR_BYTE_QUALIFIERS;
                 } else {
                     /*
                      * For regular phoenix views, use the storage scheme of the physical table since they all share the
@@ -2037,11 +2040,14 @@ public class MetaDataClient {
                      */
                     viewPhysicalTable = PhoenixRuntime.getTable(connection, physicalNames.get(0).getString());
                     storageScheme = viewPhysicalTable.getStorageScheme();
+                    encodingScheme = viewPhysicalTable.getEncodingScheme();
 					if (EncodedColumnsUtil.usesEncodedColumnNames(viewPhysicalTable)) {
                         cqCounter  = viewPhysicalTable.getEncodedCQCounter();
                     }
                 }
-            } else {
+            }
+            // System tables have hard-coded column qualifiers. So we can't use column encoding for them.
+            else if (!SchemaUtil.isSystemTable(Bytes.toBytes(SchemaUtil.getTableName(schemaName, tableName)))) {
                 /*
                  * New indexes on existing tables can have encoded column names. But unfortunately, due to backward
                  * compatibility reasons, we aren't able to change IndexMaintainer and the state that is serialized in
@@ -2059,32 +2065,21 @@ public class MetaDataClient {
                  * in the client cache. If the phoenix table already doesn't exist then the non-encoded column qualifier scheme works
                  * because we cannot control the column qualifiers that were used when populating the hbase table.
                  */
-                byte[] tableNameBytes = SchemaUtil.getTableNameAsBytes(schemaName, tableName);
-                boolean tableExists = true;
-                try {
-                    connection.getQueryServices().getTableDescriptor(tableNameBytes);
-                } catch (org.apache.phoenix.schema.TableNotFoundException e) {
-                    tableExists = false;
-                }
-
                 if (parent != null) {
                     storageScheme = parent.getStorageScheme();
-                } else if (tableExists) {
-                    storageScheme = StorageScheme.NON_ENCODED_COLUMN_NAMES;
+                    encodingScheme = parent.getEncodingScheme();
                 } else if (isImmutableRows) {
-                    storageScheme = StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL;
+                    storageScheme = ONE_CELL_PER_COLUMN_FAMILY;
+                    encodingScheme = FOUR_BYTE_QUALIFIERS;
                     // since we are storing all columns of a column family in a single key value we can't use deletes to store nulls
                     storeNulls = true;
                 } else {
-                    storageScheme = StorageScheme.COLUMNS_STORED_IN_INDIVIDUAL_CELLS;
+                    storageScheme = ONE_CELL_PER_KEYVALUE_COLUMN;
+                    encodingScheme = FOUR_BYTE_QUALIFIERS;
                 }
-                cqCounter = storageScheme != StorageScheme.NON_ENCODED_COLUMN_NAMES ? new EncodedCQCounter() : NULL_COUNTER;
+                cqCounter = encodingScheme != NON_ENCODED_QUALIFIERS ? new EncodedCQCounter() : NULL_COUNTER;
             }
             
-            //FIXME: samarth change this once we start having qualifier encoding scheme options
-            QualifierEncodingScheme encodingScheme =
-                    storageScheme != StorageScheme.NON_ENCODED_COLUMN_NAMES ? QualifierEncodingScheme.FOUR_BYTE_QUALIFIERS
-                            : QualifierEncodingScheme.NON_ENCODED_QUALIFIERS;
             Map<String, Integer> changedCqCounters = new HashMap<>(colDefs.size());
             for (ColumnDef colDef : colDefs) {
                 rowTimeStampColumnAlreadyFound = checkAndValidateRowTimestampCol(colDef, pkConstraint, rowTimeStampColumnAlreadyFound, tableType);
@@ -2109,7 +2104,7 @@ public class MetaDataClient {
                 boolean isPkColumn = isPkColumn(pkConstraint, colDef, columnDefName);
                 String cqCounterFamily = null;
                 if (!isPkColumn) {
-                    if (storageScheme == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL) {
+                    if (storageScheme == ONE_CELL_PER_COLUMN_FAMILY && encodingScheme != NON_ENCODED_QUALIFIERS) {
                         // For this scheme we track column qualifier counters at the column family level.
                         cqCounterFamily = colDefFamily != null ? colDefFamily : (defaultFamilyName != null ? defaultFamilyName : DEFAULT_COLUMN_FAMILY);
                     } else {
@@ -2247,12 +2242,12 @@ public class MetaDataClient {
                         Collections.<PTable>emptyList(), isImmutableRows,
                         Collections.<PName>emptyList(), defaultFamilyName == null ? null :
                                 PNameFactory.newName(defaultFamilyName), null,
-                        Boolean.TRUE.equals(disableWAL), false, false, null, null, indexType, true, false, 0, 0L, isNamespaceMapped, autoPartitionSeq, isAppendOnlySchema, StorageScheme.NON_ENCODED_COLUMN_NAMES, QualifierEncodingScheme.NON_ENCODED_QUALIFIERS, PTable.EncodedCQCounter.NULL_COUNTER);
+                        Boolean.TRUE.equals(disableWAL), false, false, null, null, indexType, true, false, 0, 0L, isNamespaceMapped, autoPartitionSeq, isAppendOnlySchema, ONE_CELL_PER_KEYVALUE_COLUMN, NON_ENCODED_QUALIFIERS, PTable.EncodedCQCounter.NULL_COUNTER);
                 connection.addTable(table, MetaDataProtocol.MIN_TABLE_TIMESTAMP);
             }
             
             // Update column qualifier counters
-            if (EncodedColumnsUtil.usesEncodedColumnNames(storageScheme)) {
+            if (EncodedColumnsUtil.usesEncodedColumnNames(encodingScheme)) {
                 // Store the encoded column counter for phoenix entities that have their own hbase
                 // tables i.e. base tables and indexes.
                 String schemaNameToUse = tableType == VIEW ? viewPhysicalTable.getSchemaName().getString() : schemaName;
@@ -3133,7 +3128,7 @@ public class MetaDataClient {
                                     if (table.getType() == PTableType.INDEX && table.getIndexType() == IndexType.LOCAL) {
                                         defaultColumnFamily = QueryConstants.LOCAL_INDEX_COLUMN_FAMILY_PREFIX + defaultColumnFamily;
                                     }
-                                if (storageScheme == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL) {
+                                if (storageScheme == ONE_CELL_PER_COLUMN_FAMILY) {
                                     familyName = colDefFamily != null ? colDefFamily : defaultColumnFamily;
                                 } else {
                                     familyName = defaultColumnFamily;

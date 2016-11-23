@@ -431,7 +431,7 @@ public abstract class BaseQueryPlan implements QueryPlan {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         try {
             DataOutputStream output = new DataOutputStream(stream);
-            boolean storeColsInSingleCell = dataTable.getStorageScheme() == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL;
+            boolean storeColsInSingleCell = dataTable.getStorageScheme() == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY;
             if (storeColsInSingleCell) {
                 // if storeColsInSingleCell is true all columns of a given column family are stored in a single cell
                 scan.setAttribute(BaseScannerRegionObserver.COLUMNS_STORED_IN_SINGLE_CELL, QueryConstants.EMPTY_COLUMN_VALUE_BYTES);

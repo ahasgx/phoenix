@@ -397,7 +397,7 @@ public class IndexMaintainer implements Writable, Iterable<ColumnReference> {
         // TODO: check whether index is immutable or not. Currently it's always false so checking
         // data table is with immutable rows or not.
         this.immutableRows = dataTable.isImmutableRows();
-        this.storeColsInSingleCell = index.getStorageScheme() == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL;
+        this.storeColsInSingleCell = index.getStorageScheme() == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY;
         int indexColByteSize = 0;
         ColumnResolver resolver = null;
         List<ParseNode> parseNodes = new ArrayList<ParseNode>(1);
@@ -1712,12 +1712,6 @@ public class IndexMaintainer implements Writable, Iterable<ColumnReference> {
     }
     
     public StorageScheme getIndexStorageScheme() {
-        if (storeColsInSingleCell) {
-            return StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL;
-        }
-        if (usesEncodedColumnNames) {
-            return StorageScheme.COLUMNS_STORED_IN_INDIVIDUAL_CELLS;
-        }
-        return StorageScheme.NON_ENCODED_COLUMN_NAMES;
+        return storeColsInSingleCell ? StorageScheme.ONE_CELL_PER_COLUMN_FAMILY : StorageScheme.ONE_CELL_PER_KEYVALUE_COLUMN;
     }
 }

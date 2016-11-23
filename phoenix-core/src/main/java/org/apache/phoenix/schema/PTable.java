@@ -164,14 +164,12 @@ public interface PTable extends PMetaDataEntity {
     }
     
     public enum StorageScheme {
-        COLUMNS_STORED_IN_INDIVIDUAL_CELLS((byte)1),
-        NON_ENCODED_COLUMN_NAMES((byte)2),//TODO: samarth don't need this as storage scheme. Instead make it an encoding scheme
-        COLUMNS_STORED_IN_SINGLE_CELL((byte)3);
+        ONE_CELL_PER_KEYVALUE_COLUMN((byte)1),
+        ONE_CELL_PER_COLUMN_FAMILY((byte)2);
 
         private final byte[] byteValue;
         private final byte serializedValue;
-        private static final ByteOrder BYTE_ORDER = ByteOrder.nativeOrder();
-
+        
         StorageScheme(byte serializedValue) {
             this.serializedValue = serializedValue;
             this.byteValue = Bytes.toBytes(this.name());

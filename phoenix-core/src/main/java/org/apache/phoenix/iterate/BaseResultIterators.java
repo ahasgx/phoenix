@@ -23,12 +23,10 @@ import static org.apache.phoenix.coprocessor.BaseScannerRegionObserver.SCAN_STAR
 import static org.apache.phoenix.coprocessor.BaseScannerRegionObserver.SCAN_STOP_ROW_SUFFIX;
 import static org.apache.phoenix.monitoring.GlobalClientMetrics.GLOBAL_FAILED_QUERY_COUNTER;
 import static org.apache.phoenix.monitoring.GlobalClientMetrics.GLOBAL_QUERY_TIMEOUT_COUNTER;
-import static org.apache.phoenix.query.QueryConstants.ENCODED_EMPTY_COLUMN_NAME;
 import static org.apache.phoenix.schema.PTable.IndexType.LOCAL;
 import static org.apache.phoenix.schema.PTableType.INDEX;
 import static org.apache.phoenix.util.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.apache.phoenix.util.EncodedColumnsUtil.getEncodedColumnQualifier;
-import static org.apache.phoenix.util.ScanUtil.setQualifierRanges;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
@@ -91,14 +89,11 @@ import org.apache.phoenix.schema.PTable;
 import org.apache.phoenix.schema.PTable.IndexType;
 import org.apache.phoenix.schema.PTable.StorageScheme;
 import org.apache.phoenix.schema.PTable.ViewType;
-import org.apache.phoenix.schema.PTableType;
 import org.apache.phoenix.schema.StaleRegionBoundaryCacheException;
 import org.apache.phoenix.schema.TableRef;
 import org.apache.phoenix.schema.stats.GuidePostsInfo;
 import org.apache.phoenix.schema.stats.GuidePostsKey;
 import org.apache.phoenix.schema.stats.StatisticsUtil;
-import org.apache.phoenix.schema.types.PBoolean;
-import org.apache.phoenix.schema.types.PInteger;
 import org.apache.phoenix.util.ByteUtil;
 import org.apache.phoenix.util.Closeables;
 import org.apache.phoenix.util.EncodedColumnsUtil;
@@ -255,7 +250,7 @@ public abstract class BaseResultIterators extends ExplainTable implements Result
             }
             // When analyzing the table, there is no look up for key values being done.
             // So there is no point setting the range.
-            if (setQualifierRanges(table) && !ScanUtil.isAnalyzeTable(scan)) {
+            if (EncodedColumnsUtil.setQualifierRanges(table) && !ScanUtil.isAnalyzeTable(scan)) {
                 Pair<Integer, Integer> range = getEncodedQualifierRange(scan, context);
                 if (range != null) {
                     scan.setAttribute(BaseScannerRegionObserver.MIN_QUALIFIER, getEncodedColumnQualifier(range.getFirst()));
@@ -272,7 +267,7 @@ public abstract class BaseResultIterators extends ExplainTable implements Result
             throws SQLException {
         PTable table = context.getCurrentTable().getTable();
         StorageScheme storageScheme = table.getStorageScheme();
-        checkArgument(storageScheme == StorageScheme.COLUMNS_STORED_IN_INDIVIDUAL_CELLS,
+        checkArgument(storageScheme == StorageScheme.ONE_CELL_PER_KEYVALUE_COLUMN,
             "Method should only be used for tables using encoded column names");
         Pair<Integer, Integer> minMaxQualifiers = new Pair<>();
         for (Pair<byte[], byte[]> whereCol : context.getWhereConditionColumns()) {
@@ -429,7 +424,7 @@ public abstract class BaseResultIterators extends ExplainTable implements Result
             // the ExplicitColumnTracker not to be used, though.
             if (!statement.isAggregate() && filteredColumnNotInProjection) {
                 ScanUtil.andFilterAtEnd(scan, new ColumnProjectionFilter(SchemaUtil.getEmptyColumnFamily(table),
-                        columnsTracker, conditionOnlyCfs, EncodedColumnsUtil.usesEncodedColumnNames(table.getStorageScheme())));
+                        columnsTracker, conditionOnlyCfs, EncodedColumnsUtil.usesEncodedColumnNames(table.getEncodingScheme())));
             }
         }
     }

@@ -46,8 +46,6 @@ import org.apache.phoenix.schema.PNameFactory;
 import org.apache.phoenix.schema.PTable;
 import org.apache.phoenix.schema.PTable.EncodedCQCounter;
 import org.apache.phoenix.schema.PTable.IndexType;
-import org.apache.phoenix.schema.PTable.QualifierEncodingScheme;
-import org.apache.phoenix.schema.PTable.StorageScheme;
 import org.apache.phoenix.schema.PTableImpl;
 import org.apache.phoenix.schema.PTableType;
 import org.apache.phoenix.schema.ProjectedColumn;
@@ -181,9 +179,8 @@ public class TupleProjectionCompiler {
                     position++, sourceColumn.isNullable(), sourceColumnRef);
             projectedColumns.add(column);
         }
-        StorageScheme storageScheme = table.getStorageScheme();
         EncodedCQCounter cqCounter = EncodedCQCounter.NULL_COUNTER;
-        if (storageScheme != StorageScheme.NON_ENCODED_COLUMN_NAMES) {
+        if (EncodedColumnsUtil.usesEncodedColumnNames(table)) {
             cqCounter = EncodedCQCounter.copy(table.getEncodedCQCounter());
         }
         
@@ -193,7 +190,7 @@ public class TupleProjectionCompiler {
                 Collections.<PTable> emptyList(), table.isImmutableRows(), Collections.<PName> emptyList(), null, null,
                 table.isWALDisabled(), table.isMultiTenant(), table.getStoreNulls(), table.getViewType(),
                 table.getViewIndexId(), null, table.rowKeyOrderOptimizable(), table.isTransactional(),
-                table.getUpdateCacheFrequency(), table.getIndexDisableTimestamp(), table.isNamespaceMapped(), table.getAutoPartitionSeqName(), table.isAppendOnlySchema(), storageScheme, table.getEncodingScheme(), cqCounter);
+                table.getUpdateCacheFrequency(), table.getIndexDisableTimestamp(), table.isNamespaceMapped(), table.getAutoPartitionSeqName(), table.isAppendOnlySchema(), table.getStorageScheme(), table.getEncodingScheme(), cqCounter);
     }
 
     // For extracting column references from single select statement

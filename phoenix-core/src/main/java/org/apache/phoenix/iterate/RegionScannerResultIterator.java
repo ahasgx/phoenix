@@ -29,7 +29,7 @@ import org.apache.phoenix.schema.tuple.EncodedColumnQualiferCellsList;
 import org.apache.phoenix.schema.tuple.MultiKeyValueTuple;
 import org.apache.phoenix.schema.tuple.PositionBasedMultiKeyValueTuple;
 import org.apache.phoenix.schema.tuple.Tuple;
-import org.apache.phoenix.util.ScanUtil;
+import org.apache.phoenix.util.EncodedColumnsUtil;
 import org.apache.phoenix.util.ServerUtil;
 
 
@@ -40,7 +40,7 @@ public class RegionScannerResultIterator extends BaseResultIterator {
     
     public RegionScannerResultIterator(RegionScanner scanner, Pair<Integer, Integer> minMaxQualifiers) {
         this.scanner = scanner;
-        this.useQualifierAsIndex = ScanUtil.useQualifierAsIndex(minMaxQualifiers);
+        this.useQualifierAsIndex = EncodedColumnsUtil.useQualifierAsIndex(minMaxQualifiers);
         this.minMaxQualifiers = minMaxQualifiers;
     }
     

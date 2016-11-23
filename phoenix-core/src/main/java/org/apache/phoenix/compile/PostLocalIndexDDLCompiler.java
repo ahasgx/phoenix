@@ -83,7 +83,7 @@ public class PostLocalIndexDDLCompiler {
             // However, in this case, we need to project all of the data columns that contribute to the index.
             IndexMaintainer indexMaintainer = index.getIndexMaintainer(dataTable, connection);
             for (ColumnReference columnRef : indexMaintainer.getAllColumns()) {
-                if (index.getStorageScheme() == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL) {
+                if (index.getStorageScheme() == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY) {
                     scan.addFamily(columnRef.getFamily());
                 } else {
                     scan.addColumn(columnRef.getFamily(), columnRef.getQualifier());

@@ -22,36 +22,42 @@ import static com.google.common.base.Preconditions.checkArgument;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Pair;
+import org.apache.phoenix.coprocessor.BaseScannerRegionObserver;
 import org.apache.phoenix.query.QueryConstants;
 import org.apache.phoenix.schema.PColumn;
 import org.apache.phoenix.schema.PTable;
+import org.apache.phoenix.schema.PTable.QualifierEncodingScheme;
 import org.apache.phoenix.schema.PTable.StorageScheme;
 
 public class EncodedColumnsUtil {
 
     public static boolean usesEncodedColumnNames(PTable table) {
-        return usesEncodedColumnNames(table.getStorageScheme());
+        return usesEncodedColumnNames(table.getEncodingScheme());
     }
     
-    public static boolean usesEncodedColumnNames(StorageScheme storageScheme) {
-        return storageScheme != null && storageScheme != StorageScheme.NON_ENCODED_COLUMN_NAMES;
+    public static boolean usesEncodedColumnNames(QualifierEncodingScheme encodingScheme) {
+        return encodingScheme != null && encodingScheme != QualifierEncodingScheme.NON_ENCODED_QUALIFIERS;
     }
 
     public static byte[] getEncodedColumnQualifier(PColumn column) {
         checkArgument(!SchemaUtil.isPKColumn(column), "No column qualifiers for PK columns");
         checkArgument(!column.isDynamic(), "No encoded column qualifiers for dynamic columns");
+        //TODO: samarth this would need to use encoding scheme.
         return Bytes.toBytes(column.getEncodedColumnQualifier());
     }
     
     public static int getEncodedColumnQualifier(byte[] bytes, int offset, int length) {
+      //TODO: samarth this would need to use encoding scheme.
         return Bytes.toInt(bytes, offset, length);
     }
     
     public static byte[] getEncodedColumnQualifier(int value) {
+      //TODO: samarth this would need to use encoding scheme.
         return Bytes.toBytes(value);
     }
     
     public static int getEncodedColumnQualifier(byte[] bytes) {
+      //TODO: samarth this would need to use encoding scheme.
         return Bytes.toInt(bytes);
     }
 
@@ -60,7 +66,7 @@ public class EncodedColumnsUtil {
     }
     
     public static void setColumns(PColumn column, PTable table, Scan scan) {
-    	if (table.getStorageScheme() == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL) {
+    	if (table.getStorageScheme() == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY) {
             // if a table storage scheme is COLUMNS_STORED_IN_SINGLE_CELL set then all columns of a column family are stored in a single cell 
             // (with the qualifier name being same as the family name), just project the column family here
             // so that we can calculate estimatedByteSize correctly in ProjectionCompiler 
@@ -102,6 +108,33 @@ public class EncodedColumnsUtil {
 
     public static boolean hasEncodedColumnName(PColumn column){
         return !SchemaUtil.isPKColumn(column) && !column.isDynamic() && column.getEncodedColumnQualifier() != null;
+    }
+
+    public static Pair<Integer, Integer> getMinMaxQualifiersFromScan(Scan scan) {
+        Integer minQ = null, maxQ = null;
+        byte[] minQualifier = scan.getAttribute(BaseScannerRegionObserver.MIN_QUALIFIER);
+        if (minQualifier != null) {
+            minQ = getEncodedColumnQualifier(minQualifier);
+        }
+        byte[] maxQualifier = scan.getAttribute(BaseScannerRegionObserver.MAX_QUALIFIER);
+        if (maxQualifier != null) {
+            maxQ = getEncodedColumnQualifier(maxQualifier);
+        }
+        if (minQualifier == null) {
+            return null;
+        }
+        return new Pair<>(minQ, maxQ);
+    }
+
+    public static boolean setQualifierRanges(PTable table) {
+        return table.getStorageScheme() != null
+                && table.getStorageScheme() == StorageScheme.ONE_CELL_PER_KEYVALUE_COLUMN
+                && usesEncodedColumnNames(table) && !table.isTransactional()
+                && !ScanUtil.hasDynamicColumns(table);
+    }
+
+    public static boolean useQualifierAsIndex(Pair<Integer, Integer> minMaxQualifiers) {
+        return minMaxQualifiers != null;
     }
     
 }

@@ -1096,9 +1096,9 @@ public class SchemaUtil {
     }
     
     public static Map<String, Pair<Integer, Integer>> getQualifierRanges(PTable table) {
-        Preconditions.checkArgument(table.getStorageScheme() == StorageScheme.COLUMNS_STORED_IN_INDIVIDUAL_CELLS,
+        Preconditions.checkArgument(table.getStorageScheme() == StorageScheme.ONE_CELL_PER_KEYVALUE_COLUMN,
             "Use this method only for tables with storage scheme "
-                    + StorageScheme.COLUMNS_STORED_IN_INDIVIDUAL_CELLS.name());
+                    + StorageScheme.ONE_CELL_PER_KEYVALUE_COLUMN.name());
         Map<String, Pair<Integer, Integer>> toReturn = Maps.newHashMapWithExpectedSize(table.getColumns().size());
         for (PColumn column : table.getColumns()) {
             if (!isPKColumn(column)) {

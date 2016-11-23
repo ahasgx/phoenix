@@ -146,10 +146,10 @@ public class ColumnRef {
             }
         }
        
-        if (table.getStorageScheme() == StorageScheme.COLUMNS_STORED_IN_SINGLE_CELL) {
-            return new ArrayColumnExpression(column, displayName, EncodedColumnsUtil.usesEncodedColumnNames(table.getStorageScheme()));
+        if (table.getStorageScheme() == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY) {
+            return new ArrayColumnExpression(column, displayName, EncodedColumnsUtil.usesEncodedColumnNames(table.getEncodingScheme()));
         }
-        return new KeyValueColumnExpression(column, displayName, EncodedColumnsUtil.usesEncodedColumnNames(table.getStorageScheme()));
+        return new KeyValueColumnExpression(column, displayName, EncodedColumnsUtil.usesEncodedColumnNames(table.getEncodingScheme()));
     }
 
     public ColumnRef cloneAtTimestamp(long timestamp) {
