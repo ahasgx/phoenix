@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -49,6 +50,7 @@ import org.apache.phoenix.compile.StatementContext;
 import org.apache.phoenix.coprocessor.generated.PTableProtos;
 import org.apache.phoenix.exception.DataExceedsCapacityException;
 import org.apache.phoenix.expression.ArrayConstructorExpression;
+import org.apache.phoenix.expression.DelegateExpression;
 import org.apache.phoenix.expression.Expression;
 import org.apache.phoenix.expression.LiteralExpression;
 import org.apache.phoenix.hbase.index.util.ImmutableBytesPtr;
@@ -61,7 +63,8 @@ import org.apache.phoenix.parse.SQLParser;
 import org.apache.phoenix.protobuf.ProtobufUtil;
 import org.apache.phoenix.query.QueryConstants;
 import org.apache.phoenix.schema.RowKeySchema.RowKeySchemaBuilder;
-import org.apache.phoenix.schema.tuple.BaseTuple;
+import org.apache.phoenix.schema.tuple.Tuple;
+import org.apache.phoenix.schema.types.PArrayDataType;
 import org.apache.phoenix.schema.types.PBinary;
 import org.apache.phoenix.schema.types.PChar;
 import org.apache.phoenix.schema.types.PDataType;
@@ -897,21 +900,27 @@ public class PTableImpl implements PTable {
                         for (PColumn column : columns) {
                             maxEncodedColumnQualifier = Math.max(maxEncodedColumnQualifier, column.getEncodedColumnQualifier());
                         }
-                        byte[][] colValues = new byte[maxEncodedColumnQualifier+1][];
+                        Expression[] colValues = new Expression[maxEncodedColumnQualifier+1];
+                        Arrays.fill(colValues, new DelegateExpression(LiteralExpression.newConstant(null)) {
+                        			@Override
+                        		    public boolean evaluate(Tuple tuple, ImmutableBytesWritable ptr) {
+                        		        return false;
+                        		    }
+                        		});
+                        // 0 is a reserved position, set it to a non-null value so that we can represent absence of a value using a negative offset
+                        colValues[0]=LiteralExpression.newConstant(QueryConstants.EMPTY_COLUMN_VALUE_BYTES);
                         for (PColumn column : columns) {
-                            colValues[column.getEncodedColumnQualifier()] = columnToValueMap.get(column);
+                        	if (columnToValueMap.containsKey(column)) {
+                        		colValues[column.getEncodedColumnQualifier()] = new LiteralExpression(columnToValueMap.get(column));
+                        	}
                         }
                         
-                        List<Expression> children = Lists.newArrayListWithExpectedSize(columns.size());
-                        // create an expression list with all the columns
-                        for (int i=0; i<colValues.length; ++i) {
-                            children.add(new LiteralExpression(colValues[i]==null ? ByteUtil.EMPTY_BYTE_ARRAY : colValues[i] ));
-                        }
+                        List<Expression> children = Arrays.asList(colValues);
                         // we use ArrayConstructorExpression to serialize multiple columns into a single byte[]
                         // construct the ArrayConstructorExpression with a variable length data type since columns can be of fixed or variable length 
-                        ArrayConstructorExpression arrayExpression = new ArrayConstructorExpression(children, PVarbinary.INSTANCE, rowKeyOrderOptimizable);
+                        ArrayConstructorExpression arrayExpression = new ArrayConstructorExpression(children, PVarbinary.INSTANCE, rowKeyOrderOptimizable, PArrayDataType.IMMUTABLE_SERIALIZATION_VERSION);
                         ImmutableBytesWritable ptr = new ImmutableBytesWritable();
-                        arrayExpression.evaluate(new BaseTuple() {}, ptr);
+                        arrayExpression.evaluate(null, ptr);
                         ImmutableBytesPtr colFamilyPtr = new ImmutableBytesPtr(columnFamily);
                         addQuietly(put, kvBuilder, kvBuilder.buildPut(keyPtr,
                             colFamilyPtr, QueryConstants.SINGLE_KEYVALUE_COLUMN_QUALIFIER_BYTES_PTR, ts, ptr));

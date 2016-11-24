@@ -21,6 +21,7 @@ import org.apache.hadoop.io.WritableUtils;
 import org.apache.phoenix.expression.visitor.ExpressionVisitor;
 import org.apache.phoenix.schema.tuple.Tuple;
 import org.apache.phoenix.schema.types.PArrayDataType;
+import org.apache.phoenix.schema.types.PArrayDataType.PArrayDataTypeBytesArrayBuilder;
 import org.apache.phoenix.schema.types.PDataType;
 import org.apache.phoenix.util.ByteUtil;
 import org.apache.phoenix.util.TrustedByteArrayOutputStream;
@@ -31,7 +32,6 @@ import org.apache.phoenix.util.TrustedByteArrayOutputStream;
 public class ArrayConstructorExpression extends BaseCompoundExpression {
     private PDataType baseType;
     private int position = -1;
-    private int nNulls = 0;
     private Object[] elements;
     private final ImmutableBytesWritable valuePtr = new ImmutableBytesWritable();
     private int estimatedSize = 0;
@@ -39,20 +39,25 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
     // and serialize into byte stream
     private int[] offsetPos;
     private boolean rowKeyOrderOptimizable;
+    private byte serializationVersion;
     
     public ArrayConstructorExpression() {
     }
 
     public ArrayConstructorExpression(List<Expression> children, PDataType baseType, boolean rowKeyOrderOptimizable) {
+    	this(children, baseType, rowKeyOrderOptimizable, PArrayDataType.SORTABLE_SERIALIZATION_VERSION);
+    }
+    
+    public ArrayConstructorExpression(List<Expression> children, PDataType baseType, boolean rowKeyOrderOptimizable, byte serializationVersion) {
         super(children);
-        init(baseType, rowKeyOrderOptimizable);
+        init(baseType, rowKeyOrderOptimizable, serializationVersion);
     }
 
     public ArrayConstructorExpression clone(List<Expression> children) {
-        return new ArrayConstructorExpression(children, this.baseType, this.rowKeyOrderOptimizable);
+        return new ArrayConstructorExpression(children, this.baseType, this.rowKeyOrderOptimizable, PArrayDataType.SORTABLE_SERIALIZATION_VERSION);
     }
     
-    private void init(PDataType baseType, boolean rowKeyOrderOptimizable) {
+    private void init(PDataType baseType, boolean rowKeyOrderOptimizable, byte serializationVersion) {
         this.baseType = baseType;
         this.rowKeyOrderOptimizable = rowKeyOrderOptimizable;
         elements = new Object[getChildren().size()];
@@ -61,6 +66,7 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
         if (!this.baseType.isFixedWidth()) {
             offsetPos = new int[children.size()];
         }
+        this.serializationVersion = serializationVersion;
     }
 
     @Override
@@ -72,7 +78,6 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
     public void reset() {
         super.reset();
         position = 0;
-        nNulls = 0;
         Arrays.fill(elements, null);
         valuePtr.set(ByteUtil.EMPTY_BYTE_ARRAY);
     }
@@ -85,9 +90,9 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
         }
         TrustedByteArrayOutputStream byteStream = new TrustedByteArrayOutputStream(estimatedSize);
         DataOutputStream oStream = new DataOutputStream(byteStream);
+        PArrayDataTypeBytesArrayBuilder builder =
+                new PArrayDataTypeBytesArrayBuilder(byteStream, oStream, children.size(), baseType, getSortOrder(), rowKeyOrderOptimizable, serializationVersion);
         try {
-            int noOfElements =  children.size();
-            nNulls = 0;
             for (int i = position >= 0 ? position : 0; i < elements.length; i++) {
                 Expression child = children.get(i);
                 if (!child.evaluate(tuple, ptr)) {
@@ -95,48 +100,19 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
                         if (position >= 0) position = i;
                         return false;
                     }
-                } else {
-                    // track the offset position here from the size of the byteStream
-                    if (!baseType.isFixedWidth()) {
-                        // Any variable length array would follow the below order
-                        // Every element would be seperated by a seperator byte '0'
-                        // Null elements are counted and once a first non null element appears we
-                        // write the count of the nulls prefixed with a seperator byte
-                        // Trailing nulls are not taken into account
-                        // The last non null element is followed by two seperator bytes
-                        // For eg
-                        // a, b, null, null, c, null would be 
-                        // 65 0 66 0 0 2 67 0 0 0
-                        // a null null null b c null d would be
-                        // 65 0 0 3 66 0 67 0 0 1 68 0 0 0
-                        if (ptr.getLength() == 0) {
-                            offsetPos[i] = byteStream.size();
-                            nNulls++;
-                        } else {
-                            PArrayDataType.serializeNulls(oStream, nNulls);
-                            offsetPos[i] = byteStream.size();
-                            oStream.write(ptr.get(), ptr.getOffset(), ptr.getLength());
-                            oStream.write(PArrayDataType.getSeparatorByte(rowKeyOrderOptimizable, getSortOrder()));
-                            nNulls = 0;
-                        }
-                    } else { // No nulls for fixed length
-                        oStream.write(ptr.get(), ptr.getOffset(), ptr.getLength());
+                    else {
+                        // its possible for the expression to evaluate to null if the serialization format is immutable and the data type is variable length
+                        builder.appendMissingElement();
                     }
+                } else {
+                    builder.appendElem(ptr.get(), ptr.getOffset(), ptr.getLength());
                 }
             }
             if (position >= 0) position = elements.length;
-            if (!baseType.isFixedWidth()) {
-                // Double seperator byte to show end of the non null array
-                PArrayDataType.writeEndSeperatorForVarLengthArray(oStream, getSortOrder(), rowKeyOrderOptimizable);
-                noOfElements = PArrayDataType.serailizeOffsetArrayIntoStream(oStream, byteStream, noOfElements,
-                        offsetPos[offsetPos.length - 1], offsetPos);
-                PArrayDataType.serializeHeaderInfoIntoStream(oStream, noOfElements);
-            }
-            ptr.set(byteStream.getBuffer(), 0, byteStream.size());
+            byte[] bytes = builder.getBytesAndClose();
+            ptr.set(bytes, 0, bytes.length);
             valuePtr.set(ptr.get(), ptr.getOffset(), ptr.getLength());
             return true;
-        } catch (IOException e) {
-            throw new RuntimeException("Exception while serializing the byte array");
         } finally {
             try {
                 byteStream.close();
@@ -157,7 +133,8 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
             rowKeyOrderOptimizable = true;
             baseTypeOrdinal = -(baseTypeOrdinal+1);
         }
-        init(PDataType.values()[baseTypeOrdinal], rowKeyOrderOptimizable);
+        byte serializationVersion = input.readByte();
+        init(PDataType.values()[baseTypeOrdinal], rowKeyOrderOptimizable, serializationVersion);
     }
 
     @Override
@@ -168,6 +145,7 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
         } else {
             WritableUtils.writeVInt(output, baseType.ordinal());
         }
+        output.write(serializationVersion);
     }
     
     @Override
@@ -196,4 +174,5 @@ public class ArrayConstructorExpression extends BaseCompoundExpression {
         buf.append(children.get(children.size()-1) + "]");
         return buf.toString();
     }
+
 }

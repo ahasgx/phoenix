@@ -258,7 +258,7 @@ public class DefaultColumnValueIT extends ParallelStatsDisabledIT {
         assertFalse(rs.next());
     }
 
-    @Ignore //FIXME: PHOENIX-3442
+    @Test
     public void testDefaultImmutableRows() throws Exception {
         String table = generateUniqueName();
         String ddl = "CREATE TABLE IF NOT EXISTS " + table + " (" +

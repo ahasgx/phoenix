@@ -74,8 +74,7 @@ public class ArrayColumnExpression extends KeyValueColumnExpression {
 
         // Given a ptr to the entire array, set ptr to point to a particular element within that array
         // given the type of an array element (see comments in PDataTypeForArray)
-    	PArrayDataType.positionAtArrayElement(ptr, positionInArray, PVarbinary.INSTANCE, null);
-        return true;
+    	return PArrayDataType.positionAtArrayElement(ptr, positionInArray, PVarbinary.INSTANCE, null);
     }
 
     @Override

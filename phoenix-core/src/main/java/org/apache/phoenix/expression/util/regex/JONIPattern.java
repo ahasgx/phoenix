@@ -192,7 +192,7 @@ public class JONIPattern extends AbstractBasePattern implements AbstractBaseSpli
                 break;
             }
         }
-        byte[] bytes = builder.getBytesAndClose(SortOrder.ASC);
+        byte[] bytes = builder.getBytesAndClose();
         if (bytes == null) return false;
         outPtr.set(bytes);
         return true;

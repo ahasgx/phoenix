@@ -128,7 +128,8 @@ public class ColumnRef {
         	return new ProjectedColumnExpression(column, table, displayName);
         }
 
-        Expression expression = new KeyValueColumnExpression(column, displayName, usesEncodedColumnNames(table));
+        Expression expression = table.getStorageScheme() == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY ? 
+        		new ArrayColumnExpression(column, displayName, EncodedColumnsUtil.usesEncodedColumnNames(table)) : new KeyValueColumnExpression(column, displayName, usesEncodedColumnNames(table));
 
         if (column.getExpressionStr() != null) {
             String url = PhoenixRuntime.JDBC_PROTOCOL
@@ -146,10 +147,7 @@ public class ColumnRef {
             }
         }
        
-        if (table.getStorageScheme() == StorageScheme.ONE_CELL_PER_COLUMN_FAMILY) {
-            return new ArrayColumnExpression(column, displayName, EncodedColumnsUtil.usesEncodedColumnNames(table.getEncodingScheme()));
-        }
-        return new KeyValueColumnExpression(column, displayName, EncodedColumnsUtil.usesEncodedColumnNames(table.getEncodingScheme()));
+        return expression;
     }
 
     public ColumnRef cloneAtTimestamp(long timestamp) {
