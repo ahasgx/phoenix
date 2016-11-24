@@ -77,8 +77,7 @@ public class EncodedColumnsUtil {
             // (with the qualifier name being same as the family name), just project the column family here
             // so that we can calculate estimatedByteSize correctly in ProjectionCompiler 
     		scan.addFamily(column.getFamilyName().getBytes());
-    		//scan.addColumn(column.getFamilyName().getBytes(), column.getFamilyName().getBytes());
-        }
+    	}
         else {
         	scan.addColumn(column.getFamilyName().getBytes(), EncodedColumnsUtil.getColumnQualifier(column, table));
         }

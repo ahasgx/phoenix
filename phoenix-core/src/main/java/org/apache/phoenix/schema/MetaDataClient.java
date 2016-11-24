@@ -2067,7 +2067,10 @@ public class MetaDataClient {
                 byte[] tableNameBytes = SchemaUtil.getTableNameAsBytes(schemaName, tableName);
                 boolean tableExists = true;
                 try {
-                    connection.getQueryServices().getTableDescriptor(tableNameBytes);
+                    HTableDescriptor tableDescriptor = connection.getQueryServices().getTableDescriptor(tableNameBytes);
+                    if (tableDescriptor == null) { // for connectionless
+                        tableExists = false;
+                    }
                 } catch (org.apache.phoenix.schema.TableNotFoundException e) {
                     tableExists = false;
                 }
